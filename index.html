@@ -144,7 +144,8 @@
             column-count: 1;
             padding: 0 !important;
             margin: 0 !important;
-            list-style-type: none;
+            list-style-type: none !important;
+            counter-reset: department-counter;
             border: 2px solid #888 !important;
             border-top: none !important;
             border-radius: 0 0 6px 6px;
@@ -155,7 +156,7 @@
             padding: 0.6rem 1rem !important;
             border-bottom: 1px solid #ccc !important;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
         }
         .print-list-section ul li:last-child {
@@ -165,7 +166,27 @@
             background-color: #f2f2f2 !important;
         }
         
-        .unpaid-print-section ul li span.font-semibold { font-weight: bold !important; flex-grow: 1; }
+        /* Numbering for simple lists (e.g., Statistics) */
+        .print-list-section:not(.unpaid-print-section) ul li::before {
+            content: counter(department-counter) ".";
+            counter-increment: department-counter;
+            font-weight: bold;
+            margin-left: 0.75rem; /* Space after number in RTL */
+        }
+        
+        /* Specific styles for the Unpaid Departments list */
+        .unpaid-print-section ul li {
+            justify-content: space-between !important;
+        }
+        .unpaid-print-section ul li span.font-semibold { 
+            font-weight: bold !important; 
+            flex-grow: 1; 
+        }
+        /* Numbering for complex lists (e.g., Unpaid Departments) */
+        .unpaid-print-section ul li span.font-semibold::before {
+            content: counter(department-counter) ". ";
+            counter-increment: department-counter;
+        }
         .unpaid-print-section ul li span.text-red-400 { 
             color: #333 !important; 
             font-style: italic; 
