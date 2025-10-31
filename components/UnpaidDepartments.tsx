@@ -68,7 +68,12 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   }, [records, yearFilter, reportGenerated, ministryDepartments]);
 
   const handlePrint = () => {
-    window.print();
+    try {
+      window.print();
+    } catch (error) {
+      console.error("Printing failed:", error);
+      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
+    }
   };
 
   const inputClasses = "w-full p-3 bg-white text-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";

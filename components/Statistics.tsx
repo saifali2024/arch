@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, ministriesWithCentralFunding, ministriesWithSelfFunding } from './DataEntryForm';
 
@@ -32,6 +32,20 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color, onClick 
 const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ title: string; data: Record<string, string[]> } | null>(null);
+
+  useEffect(() => {
+    const body = document.body;
+    if (isModalOpen) {
+      body.classList.add('print-modal-active');
+    } else {
+      body.classList.remove('print-modal-active');
+    }
+
+    // Cleanup function to remove the class when the component unmounts
+    return () => {
+      body.classList.remove('print-modal-active');
+    };
+  }, [isModalOpen]);
 
   const departmentDetails = useMemo(() => {
     const all = new Map<string, Set<string>>();
@@ -98,10 +112,19 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
     }
     setIsModalOpen(true);
   };
+  
+  const handlePrint = () => {
+    try {
+      window.print();
+    } catch (error) {
+      console.error("Printing failed:", error);
+      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
+    }
+  };
 
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 statistics-cards-container">
         <StatCard 
           icon="fa-sitemap" 
           title="عدد الدوائر الكلي" 
@@ -128,10 +151,10 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
       {isModalOpen && modalData && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
           <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
-            <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide">
+            <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
               <div>
-                <button onClick={() => window.print()} className="text-gray-400 hover:text-white mr-4 transition-colors" aria-label="Print">
+                <button onClick={handlePrint} className="text-gray-400 hover:text-white mr-4 transition-colors" aria-label="Print">
                   <i className="fas fa-print text-xl"></i>
                 </button>
                 <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors" aria-label="Close">

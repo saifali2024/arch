@@ -133,7 +133,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
       window.print();
     } catch (error) {
       console.error("Printing failed:", error);
-      alert("فشلت عملية الطباعة. يرجى المحاولة مرة أخرى أو التأكد من أن متصفحك يسمح بالطباعة.");
+      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
     }
   };
 

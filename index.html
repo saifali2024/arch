@@ -14,102 +14,104 @@
         font-family: 'PT Sans', sans-serif;
       }
       @media print {
+        /* --- 1. GENERAL RESET & DEFAULTS --- */
         body {
-            margin: 0.75in;
-            padding: 0;
-            color: black;
-        }
-
-        body > #root > div > main > h1,
-        body > #root > div > main > p,
-        body > #root > div > main > div:nth-of-type(1) { /* The Header component */
-          display: none !important;
-        }
-        .no-print {
-          display: none !important;
-        }
-
-        .print-container {
+          margin: 0.5in !important;
           padding: 0 !important;
-          margin: 0 !important;
+          background: white !important;
+        }
+
+        /* Force black text, transparent background, and disable shadows for all elements */
+        * {
+          color: black !important;
+          background: transparent !important;
           box-shadow: none !important;
-          background-color: white !important;
-          border: none !important;
+          text-shadow: none !important;
+          border-color: #666 !important;
         }
 
-        .print-only {
-            display: block !important;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #666;
-            padding-bottom: 1rem;
-        }
-        .print-only h1 {
-            font-size: 16pt !important;
-            font-weight: bold;
-        }
-        .print-only p {
-            font-size: 10pt !important;
-            margin: 0.2rem 0;
-        }
-
-        table {
-            width: 100%;
-            font-size: 9pt !important;
-            color: black !important;
-            border-collapse: collapse;
-        }
-        th, td {
-            color: black !important;
-            border: 1px solid #aaa !important;
-            padding: 6px !important;
-        }
-        thead {
-            background-color: #eee !important;
-            display: table-header-group; /* Ensures header repeats on each page */
-        }
-        tbody tr {
-            page-break-inside: avoid;
-        }
-        tfoot {
-            display: table-footer-group;
-        }
-        .print-bg-white {
-            background-color: white !important;
-        }
-
-        /* Modal specific print styles */
-        .modal-overlay {
-            position: static !important;
-            background-color: transparent !important;
-        }
-
-        .modal-container {
-            position: absolute !important;
-            top: 0;
-            left: 0;
-            right: 0;
-            width: 100% !important;
-            max-width: 100% !important;
-            max-height: none !important;
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            color: black !important;
-            background-color: white !important;
-        }
-
-        .modal-container h3, .modal-container h4, .modal-container li {
-            color: black !important;
+        /* --- 2. HIDE/SHOW STRATEGY (NON-MODAL) --- */
+        /* By default, hide everything inside the main content area */
+        body:not(.print-modal-active) > #root > div > main > * {
+          display: none !important;
         }
         
-        .modal-container h4 {
-            border-color: #666 !important;
+        /* Then, explicitly show ONLY the designated print container and its contents */
+        body:not(.print-modal-active) .print-container,
+        body:not(.print-modal-active) .print-container * {
+          display: block !important;
+        }
+        
+        /* Revert table elements to their correct display types */
+        body:not(.print-modal-active) .print-container table, 
+        body:not(.print-modal-active) .print-container thead, 
+        body:not(.print-modal-active) .print-container tbody, 
+        body:not(.print-modal-active) .print-container tfoot, 
+        body:not(.print-modal-active) .print-container tr,
+        body:not(.print-modal-active) .print-container th,
+        body:not(.print-modal-active) .print-container td {
+            display: revert !important;
         }
 
-        .modal-print-hide {
-            display: none !important;
+        /* --- 3. HIDE/SHOW STRATEGY (MODAL) --- */
+        /* When modal printing is active, hide everything on the page */
+        body.print-modal-active > #root > div > main > * {
+          display: none !important;
         }
+
+        /* Then, show ONLY the modal overlay and its children */
+        body.print-modal-active .modal-overlay,
+        body.print-modal-active .modal-overlay * {
+            display: block !important;
+        }
+
+        body.print-modal-active .modal-overlay {
+            position: static !important;
+        }
+
+        body.print-modal-active .modal-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: visible !important;
+            max-height: none !important;
+        }
+
+        /* --- 4. UNIVERSAL PRINT ELEMENT VISIBILITY --- */
+        /* Hide elements specifically marked not for printing (e.g., buttons, forms) */
+        .no-print, .no-print * {
+          display: none !important;
+        }
+
+        /* Show elements specifically marked for printing only (e.g., report headers) */
+        .print-only, .print-only * {
+          display: block !important;
+        }
+
+        /* --- 5. SHARED STYLES (Tables, Print Headers) --- */
+        .print-only {
+          margin-bottom: 1.5rem;
+          border-bottom: 2px solid #666;
+          padding-bottom: 1rem;
+        }
+        .print-only h1 { font-size: 16pt !important; font-weight: bold; }
+        .print-only p { font-size: 10pt !important; margin: 0.2rem 0; }
+        
+        table { 
+            width: 100%; 
+            font-size: 9pt !important; 
+            border-collapse: collapse; 
+            page-break-inside: auto; 
+        }
+        th, td { 
+            border: 1px solid #aaa !important; 
+            padding: 6px !important; 
+            text-align: right !important;
+        }
+        thead { display: table-header-group; }
+        tbody tr { page-break-inside: avoid; }
+        tfoot { display: table-footer-group; }
       }
     </style>
   <script type="importmap">
