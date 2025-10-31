@@ -103,6 +103,12 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
       </div>
       
       <div className="mt-6">
+        <div className="print-header">
+          <h1 className="font-pt-sans">تقرير الدوائر الغير مسددة لعام {yearFilter}</h1>
+          <p className="subtitle font-pt-sans">
+              عدد الدوائر الغير مسددة: {unpaidReport.count}
+          </p>
+        </div>
         {!reportGenerated ? (
           <div className="p-8 text-center text-gray-400">
             <i className="fas fa-info-circle text-4xl mb-4"></i>

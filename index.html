@@ -19,6 +19,9 @@
       .print-inline-text {
         display: none;
       }
+      .print-header {
+        display: none;
+      }
       @media print {
         /* --- 1. GENERAL RESET & DEFAULTS --- */
         body {
@@ -92,8 +95,18 @@
           margin-bottom: 1.5rem;
           page-break-after: avoid;
         }
-        .print-header h1 { font-size: 18pt !important; font-weight: bold; margin: 0 0 0.5rem 0; }
-        .print-header .subtitle { font-size: 10pt !important; color: #333 !important; margin: 0.2rem 0; }
+        .print-header h1 {
+          font-family: 'PT Sans', sans-serif !important;
+          font-size: 20pt !important;
+          font-weight: bold;
+          margin: 0 0 0.5rem 0;
+        }
+        .print-header .subtitle {
+          font-family: 'PT Sans', sans-serif !important;
+          font-size: 12pt !important;
+          color: #444 !important;
+          margin: 0;
+        }
 
         table {
           width: 100%;

@@ -292,6 +292,12 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
       </div>
       
       <div className="mt-6 overflow-x-auto bg-gray-900 rounded-lg print-bg-white">
+        <div className="print-header">
+            <h1 className="font-pt-sans">تقرير التوقيفات التقاعدية</h1>
+            <p className="subtitle font-pt-sans">
+                {getFilterSummary()}
+            </p>
+        </div>
         {!searchPerformed ? (
             <div className="p-8 text-center text-gray-400">
                 <i className="fas fa-info-circle text-4xl mb-4"></i>

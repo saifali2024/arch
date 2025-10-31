@@ -164,6 +164,12 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
             </div>
             
             <div className="p-6 overflow-y-auto">
+              <div className="print-header">
+                <h1 className="font-pt-sans">{modalData.title}</h1>
+                <p className="subtitle font-pt-sans">
+                    عدد الدوائر الكلي: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}
+                </p>
+              </div>
               {Object.keys(modalData.data).length > 0 ? Object.entries(modalData.data).map(([ministry, departments]) => (
                 <div key={ministry} className="mb-6 print-list-section">
                   <h4 className="text-lg font-bold text-teal-400 border-b-2 border-teal-500 pb-2 mb-3">
