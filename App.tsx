@@ -5,8 +5,9 @@ import Header from './components/Header';
 import DataEntryForm from './components/DataEntryForm';
 import ArchiveSearch from './components/ArchiveSearch';
 import Statistics from './components/Statistics';
+import UnpaidDepartments from './components/UnpaidDepartments';
 
-export type View = 'entry' | 'query' | 'stats';
+export type View = 'entry' | 'query' | 'stats' | 'unpaid';
 
 function App() {
   const [view, setView] = useState<View>('entry');
@@ -40,6 +41,7 @@ function App() {
           {view === 'entry' && <DataEntryForm onAddRecord={handleAddRecord} departments={departments} />}
           {view === 'query' && <ArchiveSearch records={records} />}
           {view === 'stats' && <Statistics records={records} />}
+          {view === 'unpaid' && <UnpaidDepartments records={records} />}
         </div>
       </main>
     </div>

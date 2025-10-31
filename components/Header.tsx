@@ -12,11 +12,12 @@ const Header: React.FC<HeaderProps> = ({ activeView, setActiveView }) => {
   const entryActiveClasses = "bg-green-600 text-white shadow-md focus:ring-green-500";
   const queryActiveClasses = "bg-blue-600 text-white shadow-md focus:ring-blue-500";
   const statsActiveClasses = "bg-purple-600 text-white shadow-md focus:ring-purple-500";
+  const unpaidActiveClasses = "bg-orange-600 text-white shadow-md focus:ring-orange-500";
   
   const inactiveClasses = "bg-white text-gray-700 hover:bg-gray-200";
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-2 flex flex-col sm:flex-row justify-center items-center gap-2">
+    <div className="bg-white shadow-md rounded-lg p-2 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-2">
       <button 
         onClick={() => setActiveView('entry')} 
         className={`${baseClasses} ${activeView === 'entry' ? entryActiveClasses : inactiveClasses}`}
@@ -37,6 +38,13 @@ const Header: React.FC<HeaderProps> = ({ activeView, setActiveView }) => {
       >
         <i className="fas fa-chart-pie ml-2"></i>
         الاحصائيات
+      </button>
+      <button 
+        onClick={() => setActiveView('unpaid')} 
+        className={`${baseClasses} ${activeView === 'unpaid' ? unpaidActiveClasses : inactiveClasses}`}
+      >
+        <i className="fas fa-file-invoice-dollar ml-2"></i>
+        الدوائر الغير مسددة
       </button>
     </div>
   );
