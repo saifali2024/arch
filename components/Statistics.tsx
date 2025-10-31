@@ -162,11 +162,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                 </button>
               </div>
             </div>
-
-            <header className="hidden print-header">
-                <h1>{modalData.title}</h1>
-                <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-            </header>
             
             <div className="p-6 overflow-y-auto">
               {Object.keys(modalData.data).length > 0 ? Object.entries(modalData.data).map(([ministry, departments]) => (

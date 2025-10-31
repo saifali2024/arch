@@ -81,11 +81,6 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
-      <header className="hidden print-header">
-         <h1>تقرير الدوائر الغير مسددة لعام {yearFilter}</h1>
-         <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-      </header>
-
       <div className="no-print">
         <h2 className="text-2xl font-bold text-gray-100 mb-6 text-center">تقرير الدوائر الغير مسددة</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">

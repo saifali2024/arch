@@ -221,12 +221,6 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
 
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
-       <header className="hidden print-header">
-         <h1>تقرير التوقيفات التقاعدية</h1>
-         <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-         <p className="subtitle"><strong>الفلاتر المطبقة:</strong> {getFilterSummary()}</p>
-       </header>
-      
       <div className="no-print">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">
           <div>
