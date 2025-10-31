@@ -95,32 +95,32 @@
         .print-header h1 { font-size: 18pt !important; font-weight: bold; margin: 0 0 0.5rem 0; }
         .print-header .subtitle { font-size: 10pt !important; color: #333 !important; margin: 0.2rem 0; }
 
-        table { 
-            width: 100%; 
-            font-size: 9pt !important; 
-            border-collapse: collapse; 
-            page-break-inside: auto; 
-            border: 1px solid #ccc !important;
+        table {
+          width: 100%;
+          font-size: 9pt !important;
+          border-collapse: collapse;
+          page-break-inside: auto;
+          border: 2px solid #888 !important;
         }
-        th, td { 
-            border: 1px solid #dee2e6 !important; 
-            padding: 8px !important; 
-            text-align: right !important;
+        th, td {
+          border: 1px solid #bbb !important;
+          padding: 8px !important;
+          text-align: right !important;
         }
         thead { display: table-header-group; }
         thead th {
-            background-color: #e9ecef !important;
-            font-weight: bold;
-            font-size: 10pt !important;
-            border-bottom: 2px solid #000 !important;
+          background-color: #e9ecef !important;
+          font-weight: bold;
+          font-size: 10pt !important;
+          border-bottom: 3px solid #333 !important;
         }
         tbody tr { page-break-inside: avoid; }
-        tbody tr:nth-child(even) { background-color: #f8f9fa !important; }
+        tbody tr:nth-child(even) { background-color: #f2f2f2 !important; }
         tfoot { display: table-footer-group; }
         tfoot td {
           background-color: #e9ecef !important;
           font-weight: bold;
-          border-top: 2px solid #000 !important;
+          border-top: 3px solid #333 !important;
         }
         
         .print-inline-text {
@@ -132,7 +132,7 @@
             margin-bottom: 1.5rem;
         }
         .print-list-section h4 {
-            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%) !important;
+            background: linear-gradient(135deg, #003875 0%, #005cbf 100%) !important;
             color: white !important;
             padding: 0.75rem 1rem !important;
             font-size: 13pt !important;
@@ -145,7 +145,7 @@
             padding: 0 !important;
             margin: 0 !important;
             list-style-type: none;
-            border: 1px solid #dee2e6 !important;
+            border: 2px solid #888 !important;
             border-top: none !important;
             border-radius: 0 0 6px 6px;
             overflow: hidden;
@@ -153,7 +153,7 @@
         .print-list-section ul li { 
             page-break-inside: avoid;
             padding: 0.6rem 1rem !important;
-            border-bottom: 1px solid #dee2e6 !important;
+            border-bottom: 1px solid #ccc !important;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -162,7 +162,7 @@
             border-bottom: none !important;
         }
         .print-list-section ul li:nth-child(even) {
-            background-color: #f8f9fa !important;
+            background-color: #f2f2f2 !important;
         }
         
         .unpaid-print-section ul li span.font-semibold { font-weight: bold !important; flex-grow: 1; }
