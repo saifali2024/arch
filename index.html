@@ -85,6 +85,11 @@
 
         /* --- 4. UNIVERSAL PRINT ELEMENT VISIBILITY --- */
         .no-print, .no-print * { display: none !important; }
+        /* This rule is more specific to override the blanket visibility set for modals */
+        body.print-modal-active .modal-overlay .no-print,
+        body.print-modal-active .modal-overlay .no-print * {
+          display: none !important;
+        }
 
         /* --- 5. PROFESSIONAL STYLES --- */
         .print-header {

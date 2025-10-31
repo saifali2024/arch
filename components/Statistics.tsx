@@ -153,12 +153,21 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
           <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
             <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
-              <div>
-                <button onClick={handlePrint} className="text-gray-400 hover:text-white mr-4 transition-colors" aria-label="Print">
-                  <i className="fas fa-print text-xl"></i>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handlePrint} 
+                  className="flex items-center gap-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
+                  aria-label="طباعة التقرير"
+                >
+                  <i className="fas fa-print"></i>
+                  <span>طباعة</span>
                 </button>
-                <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors" aria-label="Close">
-                  <i className="fas fa-times text-2xl"></i>
+                <button 
+                  onClick={() => setIsModalOpen(false)} 
+                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-700" 
+                  aria-label="إغلاق"
+                >
+                  <i className="fas fa-times text-xl"></i>
                 </button>
               </div>
             </div>
