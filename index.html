@@ -124,26 +124,56 @@
         }
         
         .print-inline-text {
-            display: inline !important; font-weight: normal; font-size: 10pt; color: #555 !important; margin-right: 0.5rem;
+            display: inline !important; font-weight: normal; font-size: 10pt; color: #eee !important; margin-right: 0.5rem;
         }
-
-        .print-list-section { page-break-inside: avoid; }
+        
+        .print-list-section { 
+            page-break-inside: avoid; 
+            margin-bottom: 1.5rem;
+        }
         .print-list-section h4 {
-            background-color: #e9ecef !important;
-            padding: 0.5rem !important;
-            font-size: 12pt !important;
-            border-bottom: 1px solid #ccc !important;
-            color: #000 !important;
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%) !important;
+            color: white !important;
+            padding: 0.75rem 1rem !important;
+            font-size: 13pt !important;
+            border: none !important;
+            border-radius: 6px 6px 0 0;
+            margin-bottom: 0 !important;
         }
         .print-list-section ul {
-            column-count: 2;
-            column-gap: 2rem;
-            padding-right: 1.5rem !important;
+            column-count: 1;
+            padding: 0 !important;
+            margin: 0 !important;
+            list-style-type: none;
+            border: 1px solid #dee2e6 !important;
+            border-top: none !important;
+            border-radius: 0 0 6px 6px;
+            overflow: hidden;
         }
-        .print-list-section ul li { page-break-inside: avoid; }
+        .print-list-section ul li { 
+            page-break-inside: avoid;
+            padding: 0.6rem 1rem !important;
+            border-bottom: 1px solid #dee2e6 !important;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .print-list-section ul li:last-child {
+            border-bottom: none !important;
+        }
+        .print-list-section ul li:nth-child(even) {
+            background-color: #f8f9fa !important;
+        }
         
-        .unpaid-print-section ul li span.font-semibold { font-weight: bold !important; }
-        .unpaid-print-section ul li span.text-red-400 { color: #333 !important; font-style: italic; font-size: 9pt;}
+        .unpaid-print-section ul li span.font-semibold { font-weight: bold !important; flex-grow: 1; }
+        .unpaid-print-section ul li span.text-red-400 { 
+            color: #333 !important; 
+            font-style: italic; 
+            font-size: 9pt;
+            text-align: left !important;
+            flex-shrink: 0;
+            margin-right: 1rem;
+        }
       }
     </style>
   <script type="importmap">
