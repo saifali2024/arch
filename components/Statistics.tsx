@@ -171,7 +171,10 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
             <div className="p-6 overflow-y-auto">
               {Object.keys(modalData.data).length > 0 ? Object.entries(modalData.data).map(([ministry, departments]) => (
                 <div key={ministry} className="mb-6 page-break-inside-avoid">
-                  <h4 className="text-lg font-bold text-teal-400 border-b-2 border-teal-500 pb-2 mb-3">{ministry}</h4>
+                  <h4 className="text-lg font-bold text-teal-400 border-b-2 border-teal-500 pb-2 mb-3">
+                    {ministry}
+                    <span className="print-inline-text">(العدد: {(departments as string[]).length})</span>
+                  </h4>
                   <ul className="space-y-2 text-gray-300 pr-4 list-disc list-inside">
                     {(departments as string[]).map(deptName => (
                       <li key={deptName}>{deptName}</li>
