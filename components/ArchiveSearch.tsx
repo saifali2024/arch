@@ -129,12 +129,16 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   };
   
   const handlePrint = () => {
-    try {
-      window.print();
-    } catch (error) {
-      console.error("Printing failed:", error);
-      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-    }
+    document.body.classList.add('printing-active');
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (error) {
+        console.error("Printing failed:", error);
+        // The afterprint event in App.tsx will still fire to clean up the class.
+        alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
+      }
+    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
   };
 
   const handleExport = () => {
@@ -220,7 +224,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
+    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
       <div className="no-print">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">
           <div>
@@ -299,7 +303,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
             </p>
         </div>
         {!searchPerformed ? (
-            <div className="p-8 text-center text-gray-400">
+            <div className="p-8 text-center text-gray-400 no-print">
                 <i className="fas fa-info-circle text-4xl mb-4"></i>
                 <p>يرجى تحديد معايير البحث والضغط على زر 'تطبيق الفلاتر' لعرض النتائج.</p>
             </div>

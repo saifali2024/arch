@@ -23,27 +23,18 @@
         display: none;
       }
       @media print {
-        /* --- 1. GENERAL RESET & DEFAULTS --- */
+        /* --- 1. GENERIC PAGE SETUP --- */
+        @page {
+          size: A4;
+          margin: 0.75in;
+        }
+
         body {
-          margin: 0.75in !important;
+          margin: 0 !important;
           padding: 0 !important;
           background: white !important;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           font-size: 10pt;
-        }
-
-        /* Force black text, transparent background, and disable shadows for all elements */
-        * {
-          color: black !important;
-          background: transparent !important;
-          box-shadow: none !important;
-          text-shadow: none !important;
-          border-color: #dee2e6 !important;
-        }
-
-        @page {
-          size: A4;
-          margin: 0.75in;
         }
 
         body::after {
@@ -56,110 +47,116 @@
           color: #666 !important;
         }
 
-        /* --- 2. HIDE/SHOW STRATEGY (NON-MODAL) --- */
-        /* Hide all direct children of the main content area by default */
-        body:not(.print-modal-active) > #root > div > main > * {
+        /* --- 2. CORE VISIBILITY LOGIC --- */
+        /* When printing is active, hide everything by default */
+        body.printing-active * {
+            visibility: hidden;
+        }
+        
+        /* Then, un-hide the designated printable section and all its children */
+        body.printing-active .printable-section,
+        body.printing-active .printable-section * {
+          visibility: visible;
+        }
+        
+        /* --- 3. POSITION THE PRINTABLE SECTION --- */
+        /* Make the printable section take up the entire viewport */
+        body.printing-active .printable-section {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          box-shadow: none !important;
+          background: white !important;
+        }
+        
+        /* Make sure children that were hidden for UI purposes are visible for print */
+        .printable-section .print-header {
+            display: block !important;
+        }
+        .printable-section .print-inline-text {
+            display: inline !important;
+        }
+
+        /* --- 4. STYLE THE CONTENT WITHIN THE PRINTABLE SECTION --- */
+        .printable-section * {
+          color: black !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          border-color: #dee2e6 !important;
+        }
+        
+        /* Hide elements explicitly marked as no-print, even if they are inside the printable section */
+        .printable-section .no-print, 
+        .printable-section .no-print * {
           display: none !important;
         }
         
-        /* Then, un-hide the specific child that contains our .print-container */
-        body:not(.print-modal-active) > #root > div > main > *:has(.print-container) {
-          display: block !important;
-        }
-        
-        /* We still need to ensure table elements inside the print container are displayed correctly. */
-        body:not(.print-modal-active) .print-container table,
-        body:not(.print-modal-active) .print-container thead,
-        body:not(.print-modal-active) .print-container tbody,
-        body:not(.print-modal-active) .print-container tfoot,
-        body:not(.print-modal-active) .print-container tr,
-        body:not(.print-modal-active) .print-container th,
-        body:not(.print-modal-active) .print-container td {
-          display: revert !important;
+        .printable-section .overflow-x-auto {
+            overflow: visible !important;
         }
 
-        /* --- 3. HIDE/SHOW STRATEGY (MODAL) --- */
-        body.print-modal-active > #root > div > main > h1,
-        body.print-modal-active > #root > div > main > p,
-        body.print-modal-active > #root > div > main > div[class*="bg-white shadow-md rounded-lg"] { display: none !important; }
-        body.print-modal-active .statistics-cards-container { display: none !important; }
-        body.print-modal-active .modal-overlay {
-            display: block !important; position: absolute !important; top: 0 !important; left: 0 !important;
-            width: 100% !important; height: auto !important; background: white !important; overflow: visible !important;
-        }
-        body.print-modal-active .modal-container {
-            width: 100% !important; max-width: 100% !important; box-shadow: none !important;
-            border: none !important; overflow: visible !important; max-height: none !important; height: auto !important;
-        }
-        body.print-modal-active .modal-overlay * { visibility: visible !important; display: revert !important; }
-
-        /* --- 4. UNIVERSAL PRINT ELEMENT VISIBILITY --- */
-        .no-print, .no-print * { display: none !important; }
-        /* This rule is more specific to override the blanket visibility set for modals */
-        body.print-modal-active .modal-overlay .no-print,
-        body.print-modal-active .modal-overlay .no-print * {
-          display: none !important;
-        }
-
-        /* --- 5. PROFESSIONAL STYLES --- */
-        .print-header {
-          display: block !important;
+        .printable-section .print-header {
           text-align: center;
           border-bottom: 2px solid #000 !important;
           padding-bottom: 1rem;
           margin-bottom: 1.5rem;
           page-break-after: avoid;
         }
-        .print-header h1 {
+        .printable-section .print-header h1 {
           font-family: 'PT Sans', sans-serif !important;
           font-size: 20pt !important;
           font-weight: bold;
           margin: 0 0 0.5rem 0;
         }
-        .print-header .subtitle {
+        .printable-section .print-header .subtitle {
           font-family: 'PT Sans', sans-serif !important;
           font-size: 12pt !important;
           color: #444 !important;
           margin: 0;
         }
 
-        table {
+        .printable-section table {
           width: 100%;
           font-size: 9pt !important;
           border-collapse: collapse;
           page-break-inside: auto;
           border: 2px solid #888 !important;
         }
-        th, td {
+        .printable-section th, .printable-section td {
           border: 1px solid #bbb !important;
           padding: 8px !important;
           text-align: right !important;
         }
-        thead { display: table-header-group; }
-        thead th {
+        .printable-section thead { display: table-header-group; }
+        .printable-section thead th {
           background-color: #e9ecef !important;
           font-weight: bold;
           font-size: 10pt !important;
           border-bottom: 3px solid #333 !important;
         }
-        tbody tr { page-break-inside: avoid; }
-        tbody tr:nth-child(even) { background-color: #f2f2f2 !important; }
-        tfoot { display: table-footer-group; }
-        tfoot td {
+        .printable-section tbody tr { page-break-inside: avoid; }
+        .printable-section tbody tr:nth-child(even) { background-color: #f2f2f2 !important; }
+        .printable-section tfoot { display: table-footer-group; }
+        .printable-section tfoot td {
           background-color: #e9ecef !important;
           font-weight: bold;
           border-top: 3px solid #333 !important;
         }
         
-        .print-inline-text {
-            display: inline !important; font-weight: normal; font-size: 10pt; color: #eee !important; margin-right: 0.5rem;
+        .printable-section .print-inline-text {
+            display: inline !important; font-weight: normal; font-size: 10pt; color: #555 !important; margin-right: 0.5rem;
         }
         
-        .print-list-section { 
+        .printable-section .print-list-section { 
             page-break-inside: avoid; 
             margin-bottom: 1.5rem;
         }
-        .print-list-section h4 {
+        .printable-section .print-list-section h4 {
             background: linear-gradient(135deg, #003875 0%, #005cbf 100%) !important;
             color: white !important;
             padding: 0.75rem 1rem !important;
@@ -168,7 +165,7 @@
             border-radius: 6px 6px 0 0;
             margin-bottom: 0 !important;
         }
-        .print-list-section ul {
+        .printable-section .print-list-section ul {
             column-count: 1;
             padding: 0 !important;
             margin: 0 !important;
@@ -179,7 +176,7 @@
             border-radius: 0 0 6px 6px;
             overflow: hidden;
         }
-        .print-list-section ul li { 
+        .printable-section .print-list-section ul li { 
             page-break-inside: avoid;
             padding: 0.6rem 1rem !important;
             border-bottom: 1px solid #ccc !important;
@@ -187,35 +184,32 @@
             justify-content: flex-start;
             align-items: center;
         }
-        .print-list-section ul li:last-child {
+        .printable-section .print-list-section ul li:last-child {
             border-bottom: none !important;
         }
-        .print-list-section ul li:nth-child(even) {
+        .printable-section .print-list-section ul li:nth-child(even) {
             background-color: #f2f2f2 !important;
         }
         
-        /* Numbering for simple lists (e.g., Statistics) */
-        .print-list-section:not(.unpaid-print-section) ul li::before {
+        .printable-section .print-list-section:not(.unpaid-print-section) ul li::before {
             content: counter(department-counter) ".";
             counter-increment: department-counter;
             font-weight: bold;
             margin-left: 0.75rem; /* Space after number in RTL */
         }
         
-        /* Specific styles for the Unpaid Departments list */
-        .unpaid-print-section ul li {
+        .printable-section .unpaid-print-section ul li {
             justify-content: space-between !important;
         }
-        .unpaid-print-section ul li span.font-semibold { 
+        .printable-section .unpaid-print-section ul li span.font-semibold { 
             font-weight: bold !important; 
             flex-grow: 1; 
         }
-        /* Numbering for complex lists (e.g., Unpaid Departments) */
-        .unpaid-print-section ul li span.font-semibold::before {
+        .printable-section .unpaid-print-section ul li span.font-semibold::before {
             content: counter(department-counter) ". ";
             counter-increment: department-counter;
         }
-        .unpaid-print-section ul li span.text-red-400 { 
+        .printable-section .unpaid-print-section ul li span.text-red-400 { 
             color: #333 !important; 
             font-style: italic; 
             font-size: 9pt;

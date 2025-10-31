@@ -68,19 +68,22 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   }, [records, yearFilter, reportGenerated, ministryDepartments]);
 
   const handlePrint = () => {
-    try {
-      window.print();
-    } catch (error) {
-      console.error("Printing failed:", error);
-      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-    }
+    document.body.classList.add('printing-active');
+    setTimeout(() => {
+        try {
+          window.print();
+        } catch (error) {
+          console.error("Printing failed:", error);
+          alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
+        }
+    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
   };
 
   const inputClasses = "w-full p-3 bg-white text-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
   const labelClasses = "block text-sm font-medium text-gray-300 mb-1";
   
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
+    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
       <div className="no-print">
         <h2 className="text-2xl font-bold text-gray-100 mb-6 text-center">تقرير الدوائر الغير مسددة</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">

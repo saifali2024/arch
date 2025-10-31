@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, ministriesWithCentralFunding, ministriesWithSelfFunding } from './DataEntryForm';
 
@@ -32,20 +32,6 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color, onClick 
 const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ title: string; data: Record<string, string[]> } | null>(null);
-
-  useEffect(() => {
-    const body = document.body;
-    if (isModalOpen) {
-      body.classList.add('print-modal-active');
-    } else {
-      body.classList.remove('print-modal-active');
-    }
-
-    // Cleanup function to remove the class when the component unmounts
-    return () => {
-      body.classList.remove('print-modal-active');
-    };
-  }, [isModalOpen]);
 
   const departmentDetails = useMemo(() => {
     const all = new Map<string, Set<string>>();
@@ -114,12 +100,15 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   };
   
   const handlePrint = () => {
-    try {
-      window.print();
-    } catch (error) {
-      console.error("Printing failed:", error);
-      alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-    }
+    document.body.classList.add('printing-active');
+    setTimeout(() => {
+        try {
+          window.print();
+        } catch (error) {
+          console.error("Printing failed:", error);
+          alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
+        }
+    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
   };
 
   return (
@@ -149,51 +138,49 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
       </div>
 
       {isModalOpen && modalData && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay printable-section">
           <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
             <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={handlePrint} 
-                  className="flex items-center gap-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
-                  aria-label="طباعة التقرير"
-                >
+                  className="flex items-center gap-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200">
                   <i className="fas fa-print"></i>
                   <span>طباعة</span>
                 </button>
                 <button 
                   onClick={() => setIsModalOpen(false)} 
-                  className="text-gray-400 hover:text-white transition-colors h-10 w-10 flex items-center justify-center rounded-full hover:bg-gray-700" 
+                  className="text-gray-400 hover:text-white transition-colors duration-200" 
                   aria-label="إغلاق"
                 >
-                  <i className="fas fa-times text-xl"></i>
+                  <i className="fas fa-times text-2xl"></i>
                 </button>
               </div>
             </div>
-            
             <div className="p-6 overflow-y-auto">
               <div className="print-header">
-                <h1 className="font-pt-sans">{modalData.title}</h1>
-                <p className="subtitle font-pt-sans">
-                    عدد الدوائر الكلي: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}
-                </p>
+                  <h1 className="font-pt-sans">{modalData.title}</h1>
+                  <p className="subtitle font-pt-sans">
+                      {/* FIX: Add type assertion to depts to fix 'unknown' type error. */}
+                      عدد الدوائر الكلي: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}
+                  </p>
               </div>
-              {Object.keys(modalData.data).length > 0 ? Object.entries(modalData.data).map(([ministry, departments]) => (
-                <div key={ministry} className="mb-6 print-list-section">
-                  <h4 className="text-lg font-bold text-teal-400 border-b-2 border-teal-500 pb-2 mb-3">
-                    {ministry}
-                    <span className="print-inline-text">(العدد: {(departments as string[]).length})</span>
-                  </h4>
-                  <ul className="space-y-2 text-gray-300 pr-4 list-disc list-inside">
-                    {(departments as string[]).map(deptName => (
-                      <li key={deptName}>{deptName}</li>
-                    ))}
-                  </ul>
-                </div>
-              )) : (
-                 <p className="text-center text-gray-400 p-6">لا توجد دوائر لعرضها في هذا التصنيف.</p>
-              )}
+              <div className="space-y-6">
+                {Object.entries(modalData.data).map(([ministry, departments]) => (
+                  <div key={ministry} className="print-list-section">
+                    <h4 className="text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
+                      {ministry}
+                      {/* FIX: Add type assertion to departments to fix 'unknown' type error. */}
+                      <span className="print-inline-text">({(departments as string[]).length} دائرة)</span>
+                    </h4>
+                    <ul className="list-disc pr-6 space-y-2 text-gray-300">
+                      {/* FIX: Add type assertion to departments to fix 'unknown' type error. */}
+                      {(departments as string[]).map(dept => <li key={dept}>{dept}</li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
