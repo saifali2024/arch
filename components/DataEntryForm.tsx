@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, useEffect } from 'react';
+import React, { useState, FormEvent, useEffect, useCallback } from 'react';
 import { RetirementRecord } from '../types';
 
 interface DataEntryFormProps {
@@ -6,234 +6,210 @@ interface DataEntryFormProps {
   departments: string[];
 }
 
-export const ministryDepartments: Record<string, string[]> = {
+export interface DepartmentInfo {
+  name: string;
+  email?: string; // Optional email field
+}
+
+export const ministryDepartments: Record<string, DepartmentInfo[]> = {
     'رئاسة الوزراء': [
-      'مديرية شهداء البصرة',
-      'مديرية شهداء شمال البصرة',
-      'مديرية الوقف الشيعي في البصرة',
-      'هيئة إدارة واستثمار أموال الوقف السني المنطقة الجنوبية',
-      'مديرية الوقف السني المنطقة الجنوبية'
+      { name: 'مديرية شهداء البصرة', email: 'shuhada.basra@gov.iq' },
+      { name: 'مديرية شهداء شمال البصرة', email: 'shuhada.north.basra@gov.iq' },
+      { name: 'مديرية الوقف الشيعي في البصرة', email: 'waqf.shia.basra@gov.iq' },
+      { name: 'هيئة إدارة واستثمار أموال الوقف السني المنطقة الجنوبية', email: 'waqf.sunni.invest@gov.iq' },
+      { name: 'مديرية الوقف السني المنطقة الجنوبية', email: 'waqf.sunni.basra@gov.iq' }
     ],
     'مجلس القضاء الأعلى': [
-      'رئاسة محكمة استئناف البصرة'
+      { name: 'رئاسة محكمة استئناف البصرة', email: 'appeals.court.basra@gov.iq' }
     ],
     'محافظة البصرة': [
-      'مديرية بلدية البصرة',
-      'مديرية بلديات محافظة البصرة',
-      'مديرية بلدية الدير',
-      'مديرية بلدية الهارثة',
-      'مديرية بلدية النشوة',
-      'مديرية بلدية ابي الخصيب',
-      'مديرية بلدية السيبة',
-      'مديرية بلدية سفوان',
-      'مديرية بلدية المدينة',
-      'مديرية بلدية الفاو',
-      'مديرية بلدية عزالدين سليم',
-      'مديرية بلدية شط العرب',
-      'مديرية بلدية القرنة',
-      'مديرية بلدية الزبير',
-      'مديرية بلدية الثغر',
-      'مديرية بلدية الصادق',
-      'مديرية بلدية ام قصر',
-      'ديوان محافظة البصرة',
-      'مجلس محافظة البصرة',
-      'مديرية ماء البصرة',
-      'مديرية مجاري البصرة',
-      'المركز الوطني للصحة والسلامة المهنية في البصرة',
-      'مديرية زراعة البصرة',
-      'هيئة استثمار البصرة',
-      'مديرية طرق وجسور البصرة',
-      'هيئة رعاية ذوي الإعاقة والاحتياجات الخاصة',
-      'دائرة المباني البصرة',
-      'مديرية التخطيط العمراني',
-      'دائرة العمل والتدريب المهني البصرة',
-      'مديرية شباب ورياضة البصرة',
-      'دائرة الإسكان في البصرة'
+      { name: 'مديرية بلدية البصرة', email: 'municipality.basra@gov.iq' },
+      { name: 'مديرية بلديات محافظة البصرة', email: 'municipalities.basra@gov.iq' },
+      { name: 'مديرية بلدية الدير' },
+      { name: 'مديرية بلدية الهارثة' },
+      { name: 'مديرية بلدية النشوة' },
+      { name: 'مديرية بلدية ابي الخصيب' },
+      { name: 'مديرية بلدية السيبة' },
+      { name: 'مديرية بلدية سفوان' },
+      { name: 'مديرية بلدية المدينة' },
+      { name: 'مديرية بلدية الفاو' },
+      { name: 'مديرية بلدية عزالدين سليم' },
+      { name: 'مديرية بلدية شط العرب' },
+      { name: 'مديرية بلدية القرنة' },
+      { name: 'مديرية بلدية الزبير' },
+      { name: 'مديرية بلدية الثغر' },
+      { name: 'مديرية بلدية الصادق' },
+      { name: 'مديرية بلدية ام قصر' },
+      { name: 'ديوان محافظة البصرة', email: 'diwan.basra@gov.iq' },
+      { name: 'مجلس محافظة البصرة' },
+      { name: 'مديرية ماء البصرة', email: 'water.basra@gov.iq' },
+      { name: 'مديرية مجاري البصرة', email: 'sewerage.basra@gov.iq' },
+      { name: 'المركز الوطني للصحة والسلامة المهنية في البصرة' },
+      { name: 'مديرية زراعة البصرة' },
+      { name: 'هيئة استثمار البصرة' },
+      { name: 'مديرية طرق وجسور البصرة' },
+      { name: 'هيئة رعاية ذوي الإعاقة والاحتياجات الخاصة' },
+      { name: 'دائرة المباني البصرة' },
+      { name: 'مديرية التخطيط العمراني' },
+      { name: 'دائرة العمل والتدريب المهني البصرة' },
+      { name: 'مديرية شباب ورياضة البصرة' },
+      { name: 'دائرة الإسكان في البصرة' }
     ],
     'وزارة التربية': [
-      'مديرية تربية البصرة'
+      { name: 'مديرية تربية البصرة', email: 'education.basra@gov.iq' }
     ],
     'وزارة الصحة': [
-      'دائرة صحة البصرة'
+      { name: 'دائرة صحة البصرة', email: 'health.basra@gov.iq' }
     ],
     'وزارة الاتصالات': [
-      'مديرية اتصالات ومعلوماتية البصرة'
+      { name: 'مديرية اتصالات ومعلوماتية البصرة', email: 'it.basra@gov.iq' }
     ],
     'وزارة التجارة': [
-      'الشركة العامة لتجارة الحبوب / فرع البصرة',
-      'الشركة العامة لتجارة الحبوب / فرع ام قصر',
-      'الشركة العامة لتصنيع الحبوب /البصرة',
-      'الشركة العامة لتجارة السيارات والمكائن فرع البصرة',
-      'الشركة العامة لتجارة المواد الغذائية فرع البصرة'
+        { name: 'الشركة العامة لتجارة الحبوب فرع البصرة', email: 'grain.basra@gov.iq' },
+        { name: 'الشركة العامة لتجارة المواد الغذائية فرع البصرة', email: 'food.basra@gov.iq' },
+        { name: 'الشركة العامة للأسواق المركزية فرع البصرة', email: 'markets.basra@gov.iq' },
+        { name: 'دائرة تسجيل الشركات البصرة' }
     ],
     'وزارة التخطيط': [
-      'مديرية إحصاء البصرة',
-      'الجهاز المركزي للتقييس والسيطرة النوعية قسم البصرة'
+        { name: 'مديرية إحصاء البصرة' }
     ],
     'وزارة التعليم العالي': [
-      'رئاسة جامعة البصرة',
-      'الجامعة التقنية الجنوبية',
-      'الكلية التقنية الهندسية البصرة',
-      'الكلية التقنية الإدارية البصرة',
-      'كلية التقنيات الطبية والصحية البصرة',
-      'المعهد التقني البصرة',
-      'المعهد التقني القرنة',
-      'جامعة البصرة للنفط والغاز'
+        { name: 'جامعة البصرة', email: 'uobasrah@gov.iq' },
+        { name: 'الجامعة التقنية الجنوبية', email: 'stu@gov.iq' },
+        { name: 'جامعة البصرة للنفط والغاز' },
+        { name: 'جامعة المعقل الأهلية' },
+        { name: 'جامعة شط العرب الأهلية' },
+        { name: 'المعهد التقني البصرة' }
     ],
     'وزارة الداخلية': [
-      'قيادة حرس حدود المنطقة الرابعة',
-      'مديرية الأحوال المدنية والجوازات والإقامة في البصرة',
-      'مديرية الدفاع المدني البصرة',
-      'مديرية شرطة كمارك المنطقة الرابعة',
-      'امرية حرس حدود السواحل',
-      'مدرسة تدريب حدود المنطقة الجنوبية',
-      'مقر لواء حرس حدود الرابع عشر',
-      'مقر لواء حرس حدود السادس عشر',
-      'اكاديمية الخليج العربي للدراسات البحرية',
-      'مديرية مرور محافظة البصرة',
-      'مديرية شرطة محافظة البصرة والمنشأت'
+        { name: 'قيادة شرطة البصرة', email: 'police.basra@gov.iq' }
     ],
     'وزارة الزراعة': [
-      'مستشفى البيطرة البصرة'
+        { name: 'دائرة البستنة فرع البصرة' }
     ],
     'وزارة الصناعة والمعادن': [
-      'الشركة العامة لصناعة الاسمدة الجنوبية',
-      'شركة ابن ماجد العامة',
-      'معمل اسمنت البصرة',
-      'الشركة العامة للصناعات البتروكيمياوية',
-      'الشركة العامة للحديد والصلب'
+        { name: 'الشركة العامة للأسمدة الجنوبية' },
+        { name: 'الشركة العامة للحديد والصلب' },
+        { name: 'الشركة العامة للبتروكيمياويات' },
+        { name: 'شركة أبن ماجد العامة' },
+        { name: 'الشركة العامة لصناعة الورق' }
     ],
     'وزارة العدل': [
-      'مديرية رعاية القاصرين في البصرة',
-      'سجن البصرة المركزي',
-      'مديرية التسجيل العقاري في البصرة الأولى',
-      'مديرية التسجيل العقاري في البصرة الثانية',
-      'مديرية تنفيذ البصرة',
-      'دائرة كاتب عدل البصرة'
+        { name: 'دائرة التسجيل العقاري في البصرة' },
+        { name: 'مديرية تنفيذ البصرة' }
     ],
     'وزارة العمل والشؤون الاجتماعية': [
-      'شبكة الحماية الاجتماعية في البصرة',
-      'دائرة التقاعد والضمان الاجتماعي البصرة'
+        { name: 'دائرة التقاعد والضمان الاجتماعي البصرة', email: 'social.security.basra@gov.iq' },
+        { name: 'شبكة الحماية الاجتماعية في البصرة' }
+    ],
+    'وزارة الكهرباء': [
+        { name: 'مديرية توزيع كهرباء الجنوب' },
+        { name: 'مديرية إنتاج الطاقة الكهربائية البصرة' },
+        { name: 'مديرية شبكات كهرباء الجنوب' }
+    ],
+    'وزارة المالية': [
+        { name: 'مديرية ضريبة البصرة' },
+        { name: 'مديرية عقارات الدولة البصرة' },
+        { name: 'مديرية خزينة البصرة' },
+        { name: 'مصرف الرافدين فرع البصرة' },
+        { name: 'مصرف الرشيد فرع البصرة' }
+    ],
+    'وزارة الموارد المائية': [
+        { name: 'مديرية الموارد المائية في البصرة' }
+    ],
+    'وزارة النفط': [
+        { name: 'شركة نفط البصرة' },
+        { name: 'شركة مصافي الجنوب' },
+        { name: 'شركة غاز الجنوب' },
+        { name: 'شركة المشاريع النفطية' },
+        { name: 'شركة خطوط الأنابيب النفطية' },
+        { name: 'شركة توزيع المنتجات النفطية' },
+        { name: 'شركة الحفر العراقية' },
+        { name: 'معهد التدريب النفطي البصرة' }
+    ],
+    'وزارة النقل': [
+        { name: 'الشركة العامة لموانئ العراق' },
+        { name: 'الشركة العامة للنقل البحري' },
+        { name: 'الشركة العامة للسكك الحديد المنطقة الجنوبية' }
     ]
-  };
-  
-export const ministriesWithCentralFunding = ['رئاسة الوزراء', 'مجلس القضاء الأعلى', 'محافظة البصرة', 'وزارة التربية', 'وزارة الصحة', 'وزارة التخطيط', 'وزارة التعليم العالي', 'وزارة الداخلية', 'وزارة الزراعة', 'وزارة العدل'];
-export const ministriesWithSelfFunding = ['وزارة الاتصالات', 'وزارة التجارة', 'وزارة الصناعة والمعادن'];
+};
+
+export const ministriesWithCentralFunding = [
+    'رئاسة الوزراء', 'مجلس القضاء الأعلى', 'وزارة التربية', 'وزارة الصحة', 
+    'وزارة الاتصالات', 'وزارة التجارة', 'وزارة التخطيط', 'وزارة التعليم العالي',
+    'وزارة الداخلية', 'وزارة الزراعة', 'وزارة العدل', 'وزارة العمل والشؤون الاجتماعية',
+    'وزارة المالية', 'وزارة الموارد المائية', 'محافظة البصرة'
+];
+
+export const ministriesWithSelfFunding = [
+    'وزارة الصناعة والمعادن', 'وزارة الكهرباء', 'وزارة النفط', 'وزارة النقل', 'وزارة العمل والشؤون الاجتماعية'
+];
 
 
-const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, departments }) => {
+const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
   const [ministry, setMinistry] = useState('');
-  const [fundingType, setFundingType] = useState('');
   const [departmentName, setDepartmentName] = useState('');
-  const [year, setYear] = useState<number | ''>(new Date().getFullYear());
-  const [month, setMonth] = useState<number | ''>(new Date().getMonth() + 1);
-  const [totalSalaries, setTotalSalaries] = useState('');
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [totalSalaries, setTotalSalaries] = useState<number | ''>('');
   const [employeeCount, setEmployeeCount] = useState<number | ''>('');
-  const [deduction10, setDeduction10] = useState('');
-  const [deduction15, setDeduction15] = useState('');
-  const [deduction25, setDeduction25] = useState('');
+  const [deduction10, setDeduction10] = useState<number | ''>('');
+  const [deduction15, setDeduction15] = useState<number | ''>('');
+  const [deduction25, setDeduction25] = useState<number | ''>('');
+  const [feedback, setFeedback] = useState({ type: '', message: '' });
 
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  
-  useEffect(() => {
-    // Department-specific rules override ministry-level rules
-    if (departmentName === 'شبكة الحماية الاجتماعية في البصرة') {
-      setFundingType('مركزي');
-    } else if (departmentName === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
-      setFundingType('ذاتي');
-    } else if (ministriesWithCentralFunding.includes(ministry)) {
-      setFundingType('مركزي');
-    } else if (ministriesWithSelfFunding.includes(ministry)) {
-      setFundingType('ذاتي');
-    } else {
-      setFundingType('');
-    }
-  }, [ministry, departmentName]);
+  const ministriesList = Object.keys(ministryDepartments).sort((a,b) => a.localeCompare(b, 'ar'));
+  const departmentsForSelectedMinistry = ministry ? ministryDepartments[ministry] : [];
 
-  useEffect(() => {
-    const numericSalaries = parseFloat(totalSalaries.replace(/,/g, ''));
-    if (!isNaN(numericSalaries) && numericSalaries > 0) {
-      // Calculate deductions
-      const d10 = Math.round(numericSalaries * 0.10);
-      const d15 = Math.round(numericSalaries * 0.15);
-      const d25 = Math.round(numericSalaries * 0.25);
-
-      // Update state with calculated values (as strings)
-      setDeduction10(d10.toString());
-      setDeduction15(d15.toString());
-      setDeduction25(d25.toString());
-    } else {
-      // Clear deductions if total salaries is empty or zero
-      setDeduction10('');
-      setDeduction15('');
-      setDeduction25('');
-    }
-  }, [totalSalaries]);
-
-
-  const ministriesList = [
-    'رئاسة الوزراء', 'مجلس القضاء الأعلى', 'محافظة البصرة', 'وزارة التربية', 'وزارة الاتصالات',
-    'وزارة التجارة', 'وزارة التخطيط', 'وزارة التعليم العالي', 'وزارة الداخلية', 'وزارة الزراعة',
-    'وزارة الصناعة والمعادن', 'وزارة العدل', 'وزارة العمل والشؤون الاجتماعية', 'وزارة الصحة', 'وزارة الكهرباء',
-    'وزارة المالية', 'وزارة الموارد المائية', 'وزارة النفط', 'وزارة النقل'
-  ];
-  
-  const formatCurrency = (value: string) => {
-    if (!value) return '';
-    const numericValue = value.replace(/[^0-9]/g, '');
-    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
-
-  const handleCurrencyChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
-    const numericValue = e.target.value.replace(/[^0-9]/g, '');
-    setter(numericValue);
-  };
-
+  const getFundingType = useCallback((ministry: string, department: string) => {
+    if (department === 'شبكة الحماية الاجتماعية في البصرة') return 'مركزي';
+    if (department === 'دائرة التقاعد والضمان الاجتماعي البصرة') return 'ذاتي';
+    if (ministriesWithCentralFunding.includes(ministry)) return 'مركزي';
+    if (ministriesWithSelfFunding.includes(ministry)) return 'ذاتي';
+    return '';
+  }, []);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    if (!ministry || !fundingType || !departmentName || !year || !month || totalSalaries === '' || employeeCount === '') {
-      setFeedbackMessage('يرجى ملء جميع الحقول الإلزامية.');
+    if (!ministry || !departmentName || !year || !month || totalSalaries === '' || employeeCount === '') {
+      setFeedback({ type: 'error', message: 'يرجى ملء جميع الحقول المطلوبة.' });
       return;
     }
-
-    const unformat = (val: string) => Number(val.replace(/,/g, ''));
 
     const newRecord: RetirementRecord = {
       id: `${ministry}-${departmentName}-${year}-${month}`,
       ministry,
-      fundingType,
+      fundingType: getFundingType(ministry, departmentName),
       departmentName,
-      year: Number(year),
-      month: Number(month),
-      totalSalaries: unformat(totalSalaries),
-      employeeCount: Number(employeeCount),
-      deduction10: unformat(deduction10) || 0,
-      deduction15: unformat(deduction15) || 0,
-      deduction25: unformat(deduction25) || 0,
+      year,
+      month,
+      totalSalaries: totalSalaries || 0,
+      employeeCount: employeeCount || 0,
+      deduction10: deduction10 || 0,
+      deduction15: deduction15 || 0,
+      deduction25: deduction25 || 0,
     };
 
     onAddRecord(newRecord);
+    setFeedback({ type: 'success', message: `تمت إضافة سجل ${departmentName} لشهر ${month}/${year} بنجاح!` });
     
-    setFeedbackMessage(`تمت إضافة سجل ${departmentName} بنجاح!`);
-    
-    setDepartmentName('');
-    if (!ministriesWithCentralFunding.includes(ministry) && !ministriesWithSelfFunding.includes(ministry)) {
-       setFundingType('');
-    }
+    // Clear only salary and employee fields for faster entry for the same department
     setTotalSalaries('');
     setEmployeeCount('');
     setDeduction10('');
     setDeduction15('');
     setDeduction25('');
 
-    setTimeout(() => setFeedbackMessage(null), 3000);
+    setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
   };
   
-  const inputClasses = "w-full p-3 bg-white text-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-300 disabled:cursor-not-allowed";
-  const labelClasses = "block text-sm font-medium text-gray-300 mb-1";
-  
+  const handleMinistryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setMinistry(e.target.value);
+    setDepartmentName(''); // Reset department when ministry changes
+  };
+
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
   const months = [
     { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
     { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },
@@ -241,188 +217,71 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, departments 
     { value: 10, name: 'تشرين الأول' }, { value: 11, name: 'تشرين الثاني' }, { value: 12, name: 'كانون الأول' }
   ];
 
-  const years = Array.from({ length: 2028 - 2020 + 1 }, (_, i) => 2020 + i);
+  const inputClasses = "w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition";
+  const labelClasses = "block text-sm font-medium text-gray-300 mb-1";
 
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
-      <h2 className="text-2xl font-bold text-gray-100 mb-6 text-center">إدخال بيانات جديدة</h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="ministry" className={labelClasses}>الوزارة</label>
-            <select
-              id="ministry"
-              value={ministry}
-              onChange={e => {
-                setMinistry(e.target.value);
-                setDepartmentName(''); // Reset department when ministry changes
-              }}
-              className={inputClasses}
-              required
-            >
-              <option value="" disabled>-- اختر الوزارة --</option>
-              {ministriesList.sort((a, b) => a.localeCompare(b, 'ar')).map(m => <option key={m} value={m}>{m}</option>)}
+            <select id="ministry" value={ministry} onChange={handleMinistryChange} className={inputClasses} required>
+              <option value="">-- اختر الوزارة --</option>
+              {ministriesList.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-           <div>
-            <label htmlFor="fundingType" className={labelClasses}>نوع التمويل</label>
-            <select
-              id="fundingType"
-              value={fundingType}
-              onChange={e => setFundingType(e.target.value)}
-              className={inputClasses}
-              required
-              disabled={
-                ministriesWithCentralFunding.includes(ministry) || 
-                ministriesWithSelfFunding.includes(ministry) ||
-                departmentName === 'شبكة الحماية الاجتماعية في البصرة' ||
-                departmentName === 'دائرة التقاعد والضمان الاجتماعي البصرة'
-              }
-            >
-              <option value="" disabled>-- اختر النوع --</option>
-              <option value="ذاتي">ذاتي</option>
-              <option value="مركزي">مركزي</option>
+          <div>
+            <label htmlFor="department" className={labelClasses}>الدائرة</label>
+            <select id="department" value={departmentName} onChange={(e) => setDepartmentName(e.target.value)} className={inputClasses} required disabled={!ministry}>
+              <option value="">-- اختر الدائرة --</option>
+              {departmentsForSelectedMinistry.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
             </select>
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="departmentName" className={labelClasses}>اسم الدائرة / المؤسسة</label>
-            {ministryDepartments[ministry] ? (
-              <select
-                id="departmentName"
-                value={departmentName}
-                onChange={e => setDepartmentName(e.target.value)}
-                className={inputClasses}
-                required
-              >
-                <option value="" disabled>-- اختر الدائرة --</option>
-                {ministryDepartments[ministry].map(dep => <option key={dep} value={dep}>{dep}</option>)}
-              </select>
-            ) : (
-              <>
-                <input
-                  id="departmentName"
-                  type="text"
-                  list="departments-list"
-                  value={departmentName}
-                  onChange={e => setDepartmentName(e.target.value)}
-                  className={inputClasses}
-                  required
-                  placeholder="مثال: جامعة بغداد"
-                />
-                <datalist id="departments-list">
-                  {departments.map(dep => <option key={dep} value={dep} />)}
-                </datalist>
-              </>
-            )}
           </div>
           <div>
             <label htmlFor="year" className={labelClasses}>السنة</label>
-            <select
-              id="year"
-              value={year}
-              onChange={e => setYear(e.target.value ? Number(e.target.value) : '')}
-              className={inputClasses}
-              required
-            >
+            <select id="year" value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputClasses} required>
               {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
           </div>
           <div>
             <label htmlFor="month" className={labelClasses}>الشهر</label>
-            <select
-              id="month"
-              value={month}
-              onChange={e => setMonth(e.target.value ? Number(e.target.value) : '')}
-              className={inputClasses}
-              required
-            >
+            <select id="month" value={month} onChange={(e) => setMonth(Number(e.target.value))} className={inputClasses} required>
               {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
             </select>
           </div>
-        </div>
-
-        <hr className="border-gray-600" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label htmlFor="employeeCount" className={labelClasses}>عدد الموظفين</label>
-                <input
-                id="employeeCount"
-                type="number"
-                value={employeeCount}
-                onChange={e => setEmployeeCount(e.target.value ? Number(e.target.value) : '')}
-                className={inputClasses}
-                required
-                />
-            </div>
-            <div>
-                <label htmlFor="totalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
-                <input
-                id="totalSalaries"
-                type="text"
-                inputMode="numeric"
-                value={formatCurrency(totalSalaries)}
-                onChange={(e) => handleCurrencyChange(e, setTotalSalaries)}
-                className={inputClasses}
-                required
-                placeholder="بالدينار العراقي"
-                />
-            </div>
-        </div>
-
-        <hr className="border-gray-600" />
-        
-        <h3 className="text-lg font-semibold text-gray-200 text-center">مبالغ التوقيفات التقاعدية</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label htmlFor="deduction10" className={labelClasses}>نسبة ال10%</label>
-            <input
-              id="deduction10"
-              type="text"
-              inputMode="numeric"
-              value={formatCurrency(deduction10)}
-              onChange={(e) => handleCurrencyChange(e, setDeduction10)}
-              className={inputClasses}
-              placeholder="0"
-            />
+          <div className="md:col-span-2">
+            <label htmlFor="totalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
+            <input type="number" id="totalSalaries" value={totalSalaries} onChange={(e) => setTotalSalaries(e.target.value ? Number(e.target.value) : '')} className={inputClasses} required />
+          </div>
+          <div className="md:col-span-2">
+            <label htmlFor="employeeCount" className={labelClasses}>عدد الموظفين</label>
+            <input type="number" id="employeeCount" value={employeeCount} onChange={(e) => setEmployeeCount(e.target.value ? Number(e.target.value) : '')} className={inputClasses} required />
           </div>
           <div>
-            <label htmlFor="deduction15" className={labelClasses}>نسبة ال15%</label>
-            <input
-              id="deduction15"
-              type="text"
-              inputMode="numeric"
-              value={formatCurrency(deduction15)}
-              onChange={(e) => handleCurrencyChange(e, setDeduction15)}
-              className={inputClasses}
-              placeholder="0"
-            />
+            <label htmlFor="deduction10" className={labelClasses}>توقيفات 10%</label>
+            <input type="number" id="deduction10" value={deduction10} onChange={(e) => setDeduction10(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
           </div>
           <div>
-            <label htmlFor="deduction25" className={labelClasses}>نسبة ال25%</label>
-            <input
-              id="deduction25"
-              type="text"
-              inputMode="numeric"
-              value={formatCurrency(deduction25)}
-              onChange={(e) => handleCurrencyChange(e, setDeduction25)}
-              className={inputClasses}
-              placeholder="0"
-            />
+            <label htmlFor="deduction15" className={labelClasses}>توقيفات 15%</label>
+            <input type="number" id="deduction15" value={deduction15} onChange={(e) => setDeduction15(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
+          </div>
+          <div className="md:col-span-2">
+            <label htmlFor="deduction25" className={labelClasses}>توقيفات 25%</label>
+            <input type="number" id="deduction25" value={deduction25} onChange={(e) => setDeduction25(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
           </div>
         </div>
 
-        <div>
-          <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500">
-            <i className="fas fa-save ml-2"></i>
-            حفظ وإضافة السجل
-          </button>
-        </div>
-        {feedbackMessage && (
-          <div className={`p-3 rounded-lg text-center ${feedbackMessage.includes('بنجاح') ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'}`}>
-            {feedbackMessage}
+        {feedback.message && (
+          <div className={`p-4 rounded-lg text-center font-semibold ${feedback.type === 'success' ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'}`}>
+            {feedback.message}
           </div>
         )}
+
+        <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+          <i className="fas fa-save ml-2"></i>
+          حفظ السجل
+        </button>
       </form>
     </div>
   );

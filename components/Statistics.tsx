@@ -40,16 +40,16 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
 
     for (const ministry in ministryDepartments) {
       const departments = ministryDepartments[ministry];
-      for (const departmentName of departments) {
+      for (const dept of departments) {
         // Add to 'all' map
         if (!all.has(ministry)) all.set(ministry, new Set());
-        all.get(ministry)!.add(departmentName);
+        all.get(ministry)!.add(dept.name);
 
         // Determine funding type and add to respective map
         let fundingType = '';
-        if (departmentName === 'شبكة الحماية الاجتماعية في البصرة') {
+        if (dept.name === 'شبكة الحماية الاجتماعية في البصرة') {
           fundingType = 'مركزي';
-        } else if (departmentName === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
+        } else if (dept.name === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
           fundingType = 'ذاتي';
         } else if (ministriesWithCentralFunding.includes(ministry)) {
           fundingType = 'مركزي';
@@ -59,10 +59,10 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
         
         if (fundingType === 'مركزي') {
             if (!central.has(ministry)) central.set(ministry, new Set());
-            central.get(ministry)!.add(departmentName);
+            central.get(ministry)!.add(dept.name);
         } else if (fundingType === 'ذاتي') {
             if (!self.has(ministry)) self.set(ministry, new Set());
-            self.get(ministry)!.add(departmentName);
+            self.get(ministry)!.add(dept.name);
         }
       }
     }
@@ -83,7 +83,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
     };
   }, []);
 
-  // Fix: Explicitly type the accumulator `acc` as `number` to prevent faulty type inference to `unknown`.
   const uniqueDepartmentsCount = useMemo(() => Object.values(departmentDetails.all).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.all]);
   const centralFundingDepartmentsCount = useMemo(() => Object.values(departmentDetails.central).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.central]);
   const selfFundingDepartmentsCount = useMemo(() => Object.values(departmentDetails.self).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.self]);
@@ -154,7 +153,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
               <div className="print-header">
                   <h1 className="font-pt-sans">{modalData.title}</h1>
                   <p className="subtitle font-pt-sans">
-                      {/* FIX: Add type assertion to depts to fix 'unknown' type error. */}
                       عدد الدوائر الكلي: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}
                   </p>
               </div>
@@ -163,11 +161,9 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                   <div key={ministry} className="print-list-section">
                     <h4 className="text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
                       {ministry}
-                      {/* FIX: Add type assertion to departments to fix 'unknown' type error. */}
                       <span className="print-inline-text">({(departments as string[]).length} دائرة)</span>
                     </h4>
                     <ul className="list-disc pr-6 space-y-2 text-gray-300">
-                      {/* FIX: Add type assertion to departments to fix 'unknown' type error. */}
                       {(departments as string[]).map(dept => <li key={dept}>{dept}</li>)}
                     </ul>
                   </div>

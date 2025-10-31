@@ -20,27 +20,23 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   const [searchPerformed, setSearchPerformed] = useState(false);
 
 
-  const ministriesList = [
-    'رئاسة الوزراء', 'مجلس القضاء الأعلى', 'محافظة البصرة', 'وزارة التربية', 'وزارة الاتصالات',
-    'وزارة التجارة', 'وزارة التخطيط', 'وزارة التعليم العالي', 'وزارة الداخلية', 'وزارة الزراعة',
-    'وزارة الصناعة والمعادن', 'وزارة العدل', 'وزارة العمل والشؤون الاجتماعية', 'وزارة الصحة', 'وزارة الكهرباء',
-    'وزارة المالية', 'وزارة الموارد المائية', 'وزارة النفط', 'وزارة النقل'
-  ];
+  const ministriesList = useMemo(() => Object.keys(ministryDepartments).sort((a,b) => a.localeCompare(b, 'ar')), []);
+
 
   const allDepartmentsWithFunding = useMemo(() => {
     return Object.entries(ministryDepartments).flatMap(([ministry, departments]) =>
-      departments.map(departmentName => {
+      departments.map(dept => {
         let fundingType = '';
-        if (departmentName === 'شبكة الحماية الاجتماعية في البصرة') {
+        if (dept.name === 'شبكة الحماية الاجتماعية في البصرة') {
           fundingType = 'مركزي';
-        } else if (departmentName === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
+        } else if (dept.name === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
           fundingType = 'ذاتي';
         } else if (ministriesWithCentralFunding.includes(ministry)) {
           fundingType = 'مركزي';
         } else if (ministriesWithSelfFunding.includes(ministry)) {
           fundingType = 'ذاتي';
         }
-        return { ministry, departmentName, fundingType };
+        return { ministry, departmentName: dept.name, fundingType };
       })
     );
   }, []);
@@ -215,8 +211,8 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
-      <div className="no-print">
+    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+       <div className="no-print">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">
           <div>
             <label htmlFor="yearFilter" className={labelClasses}>السنة</label>
@@ -244,19 +240,16 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
             <label htmlFor="ministryFilter" className={labelClasses}>الوزارة</label>
             <select id="ministryFilter" value={ministryFilter} onChange={(e) => { setMinistryFilter(e.target.value); setDepartmentFilter(''); }} className={inputClasses}>
               <option value="">كل الوزارات</option>
-              {ministriesList.sort((a, b) => a.localeCompare(b, 'ar')).map(m => <option key={m} value={m}>{m}</option>)}
+              {ministriesList.map(m => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div>
             <label htmlFor="departmentFilter" className={labelClasses}>الدائرة</label>
-            {ministryDepartments[ministryFilter] ? (
-              <select id="departmentFilter" value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)} className={inputClasses}>
+             <select id="departmentFilter" value={departmentFilter} onChange={(e) => setDepartmentFilter(e.target.value)} className={inputClasses} disabled={!ministryFilter}>
                 <option value="">كل الدوائر</option>
-                {ministryDepartments[ministryFilter].map(dep => <option key={dep} value={dep}>{dep}</option>)}
+                {ministryFilter && ministryDepartments[ministryFilter] &&
+                  ministryDepartments[ministryFilter].map(dep => <option key={dep.name} value={dep.name}>{dep.name}</option>)}
               </select>
-            ) : (
-              <input id="departmentFilter" type="text" placeholder="اختر وزارة أولاً" className={inputClasses} disabled />
-            )}
           </div>
           <div>
             <label htmlFor="fundingTypeFilter" className={labelClasses}>نوع التمويل</label>
@@ -286,84 +279,86 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
         </div>
       </div>
       
-      <div className="mt-6 overflow-x-auto bg-gray-900 rounded-lg print-bg-white">
-        <div className="print-header">
-            <h1 className="font-pt-sans">تقرير التوقيفات التقاعدية</h1>
-            <p className="subtitle font-pt-sans">
-                {getFilterSummary()}
-            </p>
-        </div>
-        {!searchPerformed ? (
-            <div className="p-8 text-center text-gray-400 no-print">
-                <i className="fas fa-info-circle text-4xl mb-4"></i>
-                <p>يرجى تحديد معايير البحث والضغط على زر 'تطبيق الفلاتر' لعرض النتائج.</p>
+       <div className="printable-section">
+          <div className="mt-6 overflow-x-auto bg-gray-900 rounded-lg print-bg-white">
+            <div className="print-header">
+                <h1 className="font-pt-sans">تقرير التوقيفات التقاعدية</h1>
+                <p className="subtitle font-pt-sans">
+                    {getFilterSummary()}
+                </p>
             </div>
-        ) : (
-          <table className="min-w-full text-sm text-center text-gray-300">
-            <thead className="bg-gray-700 text-xs text-gray-200 uppercase tracking-wider">
-              <tr>
-                {showYearColumn && <th scope="col" className="p-3">السنة</th>}
-                {showMonthColumn && <th scope="col" className="p-3">الشهر</th>}
-                <th scope="col" className="p-3">الوزارة</th>
-                <th scope="col" className="p-3">اسم الدائرة</th>
-                <th scope="col" className="p-3">نوع التمويل</th>
-                <th scope="col" className="p-3">حالة التسديد</th>
-                <th scope="col" className="p-3">عدد الموظفين</th>
-                <th scope="col" className="p-3">مجموع الرواتب الاسمية</th>
-                <th scope="col" className="p-3">10%</th>
-                <th scope="col" className="p-3">15%</th>
-                <th scope="col" className="p-3">25%</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {displayedResults.length > 0 ? (
-                displayedResults.map(record => (
-                  <tr key={record.id} className="hover:bg-gray-800">
-                    {showYearColumn && <td className="p-3">{record.year}</td>}
-                    {showMonthColumn && <td className="p-3 whitespace-nowrap">{months.find(m => m.value === record.month)?.name}</td>}
-                    <td className="p-3">{record.ministry}</td>
-                    <td className="p-3 font-medium text-white">{record.departmentName}</td>
-                    <td className="p-3">{record.fundingType || '-'}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-1 font-semibold leading-tight rounded-full ${record.status === 'paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
-                        {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
-                      </span>
-                    </td>
-                    <td className="p-3">{record.employeeCount || '-'}</td>
-                    <td className="p-3 whitespace-nowrap">{formatCurrency(record.totalSalaries)}</td>
-                    <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction10)}</td>
-                    <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction15)}</td>
-                    <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction25)}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={colSpan + 4} className="p-4 text-center text-gray-500">
-                    لا توجد سجلات مطابقة لمعايير البحث.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            {displayedResults.length > 0 && totals.employeeCount > 0 && (
-              <tfoot className="bg-gray-700 font-bold text-white">
+            {!searchPerformed ? (
+                <div className="p-8 text-center text-gray-400 no-print">
+                    <i className="fas fa-info-circle text-4xl mb-4"></i>
+                    <p>يرجى تحديد معايير البحث والضغط على زر 'تطبيق الفلاتر' لعرض النتائج.</p>
+                </div>
+            ) : (
+              <table className="min-w-full text-sm text-center text-gray-300">
+                <thead className="bg-gray-700 text-xs text-gray-200 uppercase tracking-wider">
                   <tr>
-                      <td colSpan={footerTextColSpan} className="p-3 text-right">المجموع (للسجلات المسددة فقط)</td>
-                      <td className="p-3">{totals.employeeCount}</td>
-                      <td className="p-3 whitespace-nowrap">{formatCurrency(totals.totalSalaries)}</td>
-                      <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction10)}</td>
-                      <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction15)}</td>
-                      <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction25)}</td>
+                    {showYearColumn && <th scope="col" className="p-3">السنة</th>}
+                    {showMonthColumn && <th scope="col" className="p-3">الشهر</th>}
+                    <th scope="col" className="p-3">الوزارة</th>
+                    <th scope="col" className="p-3">اسم الدائرة</th>
+                    <th scope="col" className="p-3">نوع التمويل</th>
+                    <th scope="col" className="p-3">حالة التسديد</th>
+                    <th scope="col" className="p-3">عدد الموظفين</th>
+                    <th scope="col" className="p-3">مجموع الرواتب الاسمية</th>
+                    <th scope="col" className="p-3">10%</th>
+                    <th scope="col" className="p-3">15%</th>
+                    <th scope="col" className="p-3">25%</th>
                   </tr>
-              </tfoot>
+                </thead>
+                <tbody className="divide-y divide-gray-700">
+                  {displayedResults.length > 0 ? (
+                    displayedResults.map(record => (
+                      <tr key={record.id} className="hover:bg-gray-800">
+                        {showYearColumn && <td className="p-3">{record.year}</td>}
+                        {showMonthColumn && <td className="p-3 whitespace-nowrap">{months.find(m => m.value === record.month)?.name}</td>}
+                        <td className="p-3">{record.ministry}</td>
+                        <td className="p-3 font-medium text-white">{record.departmentName}</td>
+                        <td className="p-3">{record.fundingType || '-'}</td>
+                        <td className="p-3">
+                          <span className={`px-2 py-1 font-semibold leading-tight rounded-full ${record.status === 'paid' ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100'}`}>
+                            {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
+                          </span>
+                        </td>
+                        <td className="p-3">{record.employeeCount || '-'}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.totalSalaries)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction10)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction15)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction25)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={colSpan + 4} className="p-4 text-center text-gray-500">
+                        لا توجد سجلات مطابقة لمعايير البحث.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                {displayedResults.length > 0 && totals.employeeCount > 0 && (
+                  <tfoot className="bg-gray-700 font-bold text-white">
+                      <tr>
+                          <td colSpan={footerTextColSpan} className="p-3 text-right">المجموع (للسجلات المسددة فقط)</td>
+                          <td className="p-3">{totals.employeeCount}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.totalSalaries)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction10)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction15)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction25)}</td>
+                      </tr>
+                  </tfoot>
+                )}
+              </table>
             )}
-          </table>
-        )}
+          </div>
+          {searchPerformed && (
+           <p className="text-center text-gray-400 mt-4 no-print">
+            {`تم العثور على ${displayedResults.length} نتيجة.`}
+          </p>
+          )}
       </div>
-      {searchPerformed && (
-       <p className="text-center text-gray-400 mt-4 no-print">
-        {`تم العثور على ${displayedResults.length} نتيجة.`}
-      </p>
-      )}
     </div>
   );
 };
