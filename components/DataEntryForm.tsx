@@ -6,21 +6,7 @@ interface DataEntryFormProps {
   departments: string[];
 }
 
-const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, departments }) => {
-  const [ministry, setMinistry] = useState('');
-  const [fundingType, setFundingType] = useState('');
-  const [departmentName, setDepartmentName] = useState('');
-  const [year, setYear] = useState<number | ''>(new Date().getFullYear());
-  const [month, setMonth] = useState<number | ''>(new Date().getMonth() + 1);
-  const [totalSalaries, setTotalSalaries] = useState('');
-  const [employeeCount, setEmployeeCount] = useState<number | ''>('');
-  const [deduction10, setDeduction10] = useState('');
-  const [deduction15, setDeduction15] = useState('');
-  const [deduction25, setDeduction25] = useState('');
-
-  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
-  
-  const ministryDepartments: Record<string, string[]> = {
+export const ministryDepartments: Record<string, string[]> = {
     'رئاسة الوزراء': [
       'مديرية شهداء البصرة',
       'مديرية شهداء شمال البصرة',
@@ -131,9 +117,24 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, departments 
     ]
   };
   
-  const ministriesWithCentralFunding = ['رئاسة الوزراء', 'مجلس القضاء الأعلى', 'محافظة البصرة', 'وزارة التربية', 'وزارة الصحة', 'وزارة التخطيط', 'وزارة التعليم العالي', 'وزارة الداخلية', 'وزارة الزراعة', 'وزارة العدل'];
-  const ministriesWithSelfFunding = ['وزارة الاتصالات', 'وزارة التجارة', 'وزارة الصناعة والمعادن'];
+export const ministriesWithCentralFunding = ['رئاسة الوزراء', 'مجلس القضاء الأعلى', 'محافظة البصرة', 'وزارة التربية', 'وزارة الصحة', 'وزارة التخطيط', 'وزارة التعليم العالي', 'وزارة الداخلية', 'وزارة الزراعة', 'وزارة العدل'];
+export const ministriesWithSelfFunding = ['وزارة الاتصالات', 'وزارة التجارة', 'وزارة الصناعة والمعادن'];
 
+
+const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, departments }) => {
+  const [ministry, setMinistry] = useState('');
+  const [fundingType, setFundingType] = useState('');
+  const [departmentName, setDepartmentName] = useState('');
+  const [year, setYear] = useState<number | ''>(new Date().getFullYear());
+  const [month, setMonth] = useState<number | ''>(new Date().getMonth() + 1);
+  const [totalSalaries, setTotalSalaries] = useState('');
+  const [employeeCount, setEmployeeCount] = useState<number | ''>('');
+  const [deduction10, setDeduction10] = useState('');
+  const [deduction15, setDeduction15] = useState('');
+  const [deduction25, setDeduction25] = useState('');
+
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  
   useEffect(() => {
     // Department-specific rules override ministry-level rules
     if (departmentName === 'شبكة الحماية الاجتماعية في البصرة') {
