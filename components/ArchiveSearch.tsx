@@ -314,7 +314,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                 <th scope="col" className="p-3">نوع التمويل</th>
                 <th scope="col" className="p-3">حالة التسديد</th>
                 <th scope="col" className="p-3">عدد الموظفين</th>
-                <th scope="col" className="p-3">مجموع الرواتب</th>
+                <th scope="col" className="p-3">مجموع الرواتب الاسمية</th>
                 <th scope="col" className="p-3">10%</th>
                 <th scope="col" className="p-3">15%</th>
                 <th scope="col" className="p-3">25%</th>
