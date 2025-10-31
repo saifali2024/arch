@@ -221,11 +221,11 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
 
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
-       <div className="hidden print-only mb-6">
-        <h1 className="text-2xl font-bold text-black mb-2">تقرير التوقيفات التقاعدية</h1>
-        <p className="text-sm text-black">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ')}</p>
-        <p className="text-sm font-bold text-black mt-2">الفلاتر المطبقة: {getFilterSummary()}</p>
-      </div>
+       <header className="hidden print-header">
+         <h1>تقرير التوقيفات التقاعدية</h1>
+         <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+         <p className="subtitle"><strong>الفلاتر المطبقة:</strong> {getFilterSummary()}</p>
+       </header>
       
       <div className="no-print">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">
@@ -343,7 +343,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={colSpan} className="p-4 text-center text-gray-500">
+                  <td colSpan={colSpan + 4} className="p-4 text-center text-gray-500">
                     لا توجد سجلات مطابقة لمعايير البحث.
                   </td>
                 </tr>

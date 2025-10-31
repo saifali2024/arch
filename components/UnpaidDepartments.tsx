@@ -81,10 +81,10 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   
   return (
     <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-container">
-      <div className="hidden print-only mb-6">
-        <h1 className="text-2xl font-bold text-black mb-2">تقرير الدوائر الغير مسددة لعام {yearFilter}</h1>
-        <p className="text-sm text-black">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ')}</p>
-      </div>
+      <header className="hidden print-header">
+         <h1>تقرير الدوائر الغير مسددة لعام {yearFilter}</h1>
+         <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      </header>
 
       <div className="no-print">
         <h2 className="text-2xl font-bold text-gray-100 mb-6 text-center">تقرير الدوائر الغير مسددة</h2>
@@ -119,7 +119,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
               تم العثور على {unpaidReport.count} دائرة غير مسددة لشهر واحد على الأقل في عام {yearFilter}.
             </p>
             {Object.keys(unpaidReport.data).length > 0 ? Object.entries(unpaidReport.data).map(([ministry, departments]) => (
-                 <div key={ministry} className="mb-6 page-break-inside-avoid">
+                 <div key={ministry} className="mb-6 print-list-section unpaid-print-section">
                      <h4 className="text-lg font-bold text-orange-400 border-b-2 border-orange-500 pb-2 mb-3">{ministry}</h4>
                      <ul className="space-y-2 text-gray-300 pr-4">
                          {Object.entries(departments).map(([deptName, unpaidMonths]) => (

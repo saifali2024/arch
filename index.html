@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@700&display=swap" rel="stylesheet">
     <style>
+      body {
+        counter-reset: page;
+      }
       .font-pt-sans {
         font-family: 'PT Sans', sans-serif;
       }
@@ -19,9 +22,11 @@
       @media print {
         /* --- 1. GENERAL RESET & DEFAULTS --- */
         body {
-          margin: 0.5in !important;
+          margin: 0.75in !important;
           padding: 0 !important;
           background: white !important;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          font-size: 10pt;
         }
 
         /* Force black text, transparent background, and disable shadows for all elements */
@@ -30,116 +35,115 @@
           background: transparent !important;
           box-shadow: none !important;
           text-shadow: none !important;
-          border-color: #666 !important;
+          border-color: #dee2e6 !important;
         }
 
-        .print-inline-text {
-            display: inline !important;
-            font-weight: normal;
-            font-size: 11pt;
-            color: #333 !important;
-            margin-right: 0.5rem;
+        @page {
+          size: A4;
+          margin: 0.75in;
+        }
+
+        body::after {
+          content: "صفحة " counter(page);
+          counter-increment: page;
+          position: fixed;
+          bottom: 0.5in;
+          left: 0.5in;
+          font-size: 9pt;
+          color: #666 !important;
         }
 
         /* --- 2. HIDE/SHOW STRATEGY (NON-MODAL) --- */
-        /* By default, hide everything inside the main content area */
-        body:not(.print-modal-active) > #root > div > main > * {
-          display: none !important;
-        }
-        
-        /* Then, explicitly show ONLY the designated print container and its contents */
+        body:not(.print-modal-active) > #root > div > main > * { display: none !important; }
         body:not(.print-modal-active) .print-container,
-        body:not(.print-modal-active) .print-container * {
-          display: block !important;
-        }
-        
-        /* Revert table elements to their correct display types */
+        body:not(.print-modal-active) .print-container * { display: block !important; }
         body:not(.print-modal-active) .print-container table, 
         body:not(.print-modal-active) .print-container thead, 
         body:not(.print-modal-active) .print-container tbody, 
         body:not(.print-modal-active) .print-container tfoot, 
         body:not(.print-modal-active) .print-container tr,
         body:not(.print-modal-active) .print-container th,
-        body:not(.print-modal-active) .print-container td {
-            display: revert !important;
-        }
+        body:not(.print-modal-active) .print-container td { display: revert !important; }
 
         /* --- 3. HIDE/SHOW STRATEGY (MODAL) --- */
-        /* When modal printing is active, hide the main page header elements */
         body.print-modal-active > #root > div > main > h1,
         body.print-modal-active > #root > div > main > p,
-        body.print-modal-active > #root > div > main > div[class*="bg-white shadow-md rounded-lg"] {
-            display: none !important;
-        }
-
-        /* Hide the non-modal content within the statistics view */
-        body.print-modal-active .statistics-cards-container {
-            display: none !important;
-        }
-        
-        /* Make the modal overlay cover the entire page for printing */
+        body.print-modal-active > #root > div > main > div[class*="bg-white shadow-md rounded-lg"] { display: none !important; }
+        body.print-modal-active .statistics-cards-container { display: none !important; }
         body.print-modal-active .modal-overlay {
-            display: block !important;
-            position: absolute !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            background: white !important;
-            overflow: visible !important;
+            display: block !important; position: absolute !important; top: 0 !important; left: 0 !important;
+            width: 100% !important; height: auto !important; background: white !important; overflow: visible !important;
         }
-
-        /* Ensure the modal container itself is styled for printing */
         body.print-modal-active .modal-container {
-            width: 100% !important;
-            max-width: 100% !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-            max-height: none !important;
-            height: auto !important;
+            width: 100% !important; max-width: 100% !important; box-shadow: none !important;
+            border: none !important; overflow: visible !important; max-height: none !important; height: auto !important;
         }
-        
-        /* Ensure all child elements within the modal are visible */
-        body.print-modal-active .modal-overlay * {
-           visibility: visible !important;
-           display: revert !important;
-        }
+        body.print-modal-active .modal-overlay * { visibility: visible !important; display: revert !important; }
 
         /* --- 4. UNIVERSAL PRINT ELEMENT VISIBILITY --- */
-        /* Hide elements specifically marked not for printing (e.g., buttons, forms) */
-        .no-print, .no-print * {
-          display: none !important;
-        }
+        .no-print, .no-print * { display: none !important; }
 
-        /* Show elements specifically marked for printing only (e.g., report headers) */
-        .print-only, .print-only * {
+        /* --- 5. PROFESSIONAL STYLES --- */
+        .print-header {
           display: block !important;
-        }
-
-        /* --- 5. SHARED STYLES (Tables, Print Headers) --- */
-        .print-only {
-          margin-bottom: 1.5rem;
-          border-bottom: 2px solid #666;
+          text-align: center;
+          border-bottom: 2px solid #000 !important;
           padding-bottom: 1rem;
+          margin-bottom: 1.5rem;
+          page-break-after: avoid;
         }
-        .print-only h1 { font-size: 16pt !important; font-weight: bold; }
-        .print-only p { font-size: 10pt !important; margin: 0.2rem 0; }
-        
+        .print-header h1 { font-size: 18pt !important; font-weight: bold; margin: 0 0 0.5rem 0; }
+        .print-header .subtitle { font-size: 10pt !important; color: #333 !important; margin: 0.2rem 0; }
+
         table { 
             width: 100%; 
             font-size: 9pt !important; 
             border-collapse: collapse; 
             page-break-inside: auto; 
+            border: 1px solid #ccc !important;
         }
         th, td { 
-            border: 1px solid #aaa !important; 
-            padding: 6px !important; 
+            border: 1px solid #dee2e6 !important; 
+            padding: 8px !important; 
             text-align: right !important;
         }
         thead { display: table-header-group; }
+        thead th {
+            background-color: #e9ecef !important;
+            font-weight: bold;
+            font-size: 10pt !important;
+            border-bottom: 2px solid #000 !important;
+        }
         tbody tr { page-break-inside: avoid; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa !important; }
         tfoot { display: table-footer-group; }
+        tfoot td {
+          background-color: #e9ecef !important;
+          font-weight: bold;
+          border-top: 2px solid #000 !important;
+        }
+        
+        .print-inline-text {
+            display: inline !important; font-weight: normal; font-size: 10pt; color: #555 !important; margin-right: 0.5rem;
+        }
+
+        .print-list-section { page-break-inside: avoid; }
+        .print-list-section h4 {
+            background-color: #e9ecef !important;
+            padding: 0.5rem !important;
+            font-size: 12pt !important;
+            border-bottom: 1px solid #ccc !important;
+            color: #000 !important;
+        }
+        .print-list-section ul {
+            column-count: 2;
+            column-gap: 2rem;
+            padding-right: 1.5rem !important;
+        }
+        .print-list-section ul li { page-break-inside: avoid; }
+        
+        .unpaid-print-section ul li span.font-semibold { font-weight: bold !important; }
+        .unpaid-print-section ul li span.text-red-400 { color: #333 !important; font-style: italic; font-size: 9pt;}
       }
     </style>
   <script type="importmap">

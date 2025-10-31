@@ -163,14 +163,14 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
               </div>
             </div>
 
-            <div className="hidden print-only p-4">
-              <h1 className="text-xl font-bold text-black">{modalData.title}</h1>
-              <p className="text-sm text-black">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ')}</p>
-            </div>
+            <header className="hidden print-header">
+                <h1>{modalData.title}</h1>
+                <p className="subtitle">تاريخ الطباعة: {new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </header>
             
             <div className="p-6 overflow-y-auto">
               {Object.keys(modalData.data).length > 0 ? Object.entries(modalData.data).map(([ministry, departments]) => (
-                <div key={ministry} className="mb-6 page-break-inside-avoid">
+                <div key={ministry} className="mb-6 print-list-section">
                   <h4 className="text-lg font-bold text-teal-400 border-b-2 border-teal-500 pb-2 mb-3">
                     {ministry}
                     <span className="print-inline-text">(العدد: {(departments as string[]).length})</span>
