@@ -54,21 +54,31 @@
         }
 
         /* --- 3. HIDE/SHOW STRATEGY (MODAL) --- */
-        /* When modal printing is active, hide everything on the page */
-        body.print-modal-active > #root > div > main > * {
-          display: none !important;
+        /* When modal printing is active, hide the main page header elements */
+        body.print-modal-active > #root > div > main > h1,
+        body.print-modal-active > #root > div > main > p,
+        body.print-modal-active > #root > div > main > div[class*="bg-white shadow-md rounded-lg"] {
+            display: none !important;
         }
 
-        /* Then, show ONLY the modal overlay and its children */
-        body.print-modal-active .modal-overlay,
-        body.print-modal-active .modal-overlay * {
-            display: block !important;
+        /* Hide the non-modal content within the statistics view */
+        body.print-modal-active .statistics-cards-container {
+            display: none !important;
         }
-
+        
+        /* Make the modal overlay cover the entire page for printing */
         body.print-modal-active .modal-overlay {
-            position: static !important;
+            display: block !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+            overflow: visible !important;
         }
 
+        /* Ensure the modal container itself is styled for printing */
         body.print-modal-active .modal-container {
             width: 100% !important;
             max-width: 100% !important;
@@ -76,6 +86,13 @@
             border: none !important;
             overflow: visible !important;
             max-height: none !important;
+            height: auto !important;
+        }
+        
+        /* Ensure all child elements within the modal are visible */
+        body.print-modal-active .modal-overlay * {
+           visibility: visible !important;
+           display: revert !important;
         }
 
         /* --- 4. UNIVERSAL PRINT ELEMENT VISIBILITY --- */
