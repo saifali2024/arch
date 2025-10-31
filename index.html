@@ -57,16 +57,26 @@
         }
 
         /* --- 2. HIDE/SHOW STRATEGY (NON-MODAL) --- */
-        body:not(.print-modal-active) > #root > div > main > * { display: none !important; }
-        body:not(.print-modal-active) .print-container,
-        body:not(.print-modal-active) .print-container * { display: block !important; }
-        body:not(.print-modal-active) .print-container table, 
-        body:not(.print-modal-active) .print-container thead, 
-        body:not(.print-modal-active) .print-container tbody, 
-        body:not(.print-modal-active) .print-container tfoot, 
+        /* Hide all direct children of the main content area by default */
+        body:not(.print-modal-active) > #root > div > main > * {
+          display: none !important;
+        }
+        
+        /* Then, un-hide the specific child that contains our .print-container */
+        body:not(.print-modal-active) > #root > div > main > *:has(.print-container) {
+          display: block !important;
+        }
+        
+        /* We still need to ensure table elements inside the print container are displayed correctly. */
+        body:not(.print-modal-active) .print-container table,
+        body:not(.print-modal-active) .print-container thead,
+        body:not(.print-modal-active) .print-container tbody,
+        body:not(.print-modal-active) .print-container tfoot,
         body:not(.print-modal-active) .print-container tr,
         body:not(.print-modal-active) .print-container th,
-        body:not(.print-modal-active) .print-container td { display: revert !important; }
+        body:not(.print-modal-active) .print-container td {
+          display: revert !important;
+        }
 
         /* --- 3. HIDE/SHOW STRATEGY (MODAL) --- */
         body.print-modal-active > #root > div > main > h1,
