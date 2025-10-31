@@ -100,15 +100,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   };
   
   const handlePrint = () => {
-    document.body.classList.add('printing-active');
-    setTimeout(() => {
-        try {
-          window.print();
-        } catch (error) {
-          console.error("Printing failed:", error);
-          alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-        }
-    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
+    window.print();
   };
 
   return (
@@ -138,7 +130,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
       </div>
 
       {isModalOpen && modalData && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 modal-overlay printable-section">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 printable-section">
           <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
             <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>

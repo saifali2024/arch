@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { RetirementRecord } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Header from './components/Header';
@@ -12,16 +12,6 @@ export type View = 'entry' | 'query' | 'stats' | 'unpaid';
 function App() {
   const [view, setView] = useState<View>('entry');
   const [records, setRecords] = useLocalStorage<RetirementRecord[]>('retirementRecords', []);
-
-  useEffect(() => {
-    const afterPrintHandler = () => {
-      document.body.classList.remove('printing-active');
-    };
-    window.addEventListener('afterprint', afterPrintHandler);
-    return () => {
-      window.removeEventListener('afterprint', afterPrintHandler);
-    };
-  }, []);
 
   const departments = useMemo(() => {
     const departmentSet = new Set(records.map(record => record.departmentName));

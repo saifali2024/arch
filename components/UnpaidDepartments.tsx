@@ -68,15 +68,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   }, [records, yearFilter, reportGenerated, ministryDepartments]);
 
   const handlePrint = () => {
-    document.body.classList.add('printing-active');
-    setTimeout(() => {
-        try {
-          window.print();
-        } catch (error) {
-          console.error("Printing failed:", error);
-          alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-        }
-    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
+    window.print();
   };
 
   const inputClasses = "w-full p-3 bg-white text-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";

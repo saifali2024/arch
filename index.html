@@ -22,11 +22,12 @@
       .print-header {
         display: none;
       }
+      
       @media print {
         /* --- 1. GENERIC PAGE SETUP --- */
         @page {
           size: A4;
-          margin: 0.75in;
+          margin: 0.5in;
         }
 
         body {
@@ -47,25 +48,19 @@
           color: #666 !important;
         }
 
-        /* --- 2. CORE VISIBILITY LOGIC --- */
-        /* When printing is active, hide everything by default */
-        body.printing-active * {
-            visibility: hidden;
+        /* --- 2. CORE VISIBILITY LOGIC (SIMPLIFIED) --- */
+        /* Hide all elements specifically marked as "no-print" */
+        .no-print {
+          display: none !important;
         }
-        
-        /* Then, un-hide the designated printable section and all its children */
-        body.printing-active .printable-section,
-        body.printing-active .printable-section * {
-          visibility: visible;
-        }
-        
-        /* --- 3. POSITION THE PRINTABLE SECTION --- */
-        /* Make the printable section take up the entire viewport */
-        body.printing-active .printable-section {
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
+
+        /* The printable section is positioned to take over the entire page. */
+        /* Its non-printable siblings are irrelevant because this section is pulled out of the normal flow. */
+        .printable-section {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
           margin: 0 !important;
           padding: 0 !important;
           border: none !important;
@@ -81,19 +76,13 @@
             display: inline !important;
         }
 
-        /* --- 4. STYLE THE CONTENT WITHIN THE PRINTABLE SECTION --- */
+        /* --- 3. STYLE THE CONTENT WITHIN THE PRINTABLE SECTION --- */
         .printable-section * {
           color: black !important;
           background: transparent !important;
           box-shadow: none !important;
           text-shadow: none !important;
           border-color: #dee2e6 !important;
-        }
-        
-        /* Hide elements explicitly marked as no-print, even if they are inside the printable section */
-        .printable-section .no-print, 
-        .printable-section .no-print * {
-          display: none !important;
         }
         
         .printable-section .overflow-x-auto {
@@ -103,8 +92,8 @@
         .printable-section .print-header {
           text-align: center;
           border-bottom: 2px solid #000 !important;
-          padding-bottom: 1rem;
-          margin-bottom: 1.5rem;
+          padding-bottom: 0.5rem;
+          margin-bottom: 1rem;
           page-break-after: avoid;
         }
         .printable-section .print-header h1 {

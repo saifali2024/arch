@@ -129,16 +129,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   };
   
   const handlePrint = () => {
-    document.body.classList.add('printing-active');
-    setTimeout(() => {
-      try {
-        window.print();
-      } catch (error) {
-        console.error("Printing failed:", error);
-        // The afterprint event in App.tsx will still fire to clean up the class.
-        alert("فشلت عملية الطباعة. قد تكون هناك قيود في المتصفح أو البيئة الحالية تمنع فتح نافذة الطباعة.");
-      }
-    }, 100); // A small delay ensures the browser applies the 'printing-active' class before generating the preview.
+    window.print();
   };
 
   const handleExport = () => {
