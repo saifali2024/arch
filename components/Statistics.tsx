@@ -1,6 +1,7 @@
+
 import React, { useMemo, useState } from 'react';
 import { RetirementRecord } from '../types';
-import { ministryDepartments, ministriesWithCentralFunding, ministriesWithSelfFunding } from './DataEntryForm';
+import { ministryDepartments, getFundingType } from './DataEntryForm';
 
 interface StatisticsProps {
   records: RetirementRecord[];
@@ -46,16 +47,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
         all.get(ministry)!.add(dept.name);
 
         // Determine funding type and add to respective map
-        let fundingType = '';
-        if (dept.name === 'شبكة الحماية الاجتماعية في البصرة') {
-          fundingType = 'مركزي';
-        } else if (dept.name === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
-          fundingType = 'ذاتي';
-        } else if (ministriesWithCentralFunding.includes(ministry)) {
-          fundingType = 'مركزي';
-        } else if (ministriesWithSelfFunding.includes(ministry)) {
-          fundingType = 'ذاتي';
-        }
+        const fundingType = getFundingType(ministry, dept.name);
         
         if (fundingType === 'مركزي') {
             if (!central.has(ministry)) central.set(ministry, new Set());
@@ -159,9 +151,14 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
               <div className="space-y-6">
                 {Object.entries(modalData.data).map(([ministry, departments]) => (
                   <div key={ministry} className="print-list-section">
-                    <h4 className="text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
-                      {ministry}
-                      <span className="print-inline-text">({(departments as string[]).length} دائرة)</span>
+                    <h4 className="flex justify-between items-baseline text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
+                      <span>{ministry}</span>
+                      <span>
+                        <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
+                          {(departments as string[]).length} دائرة
+                        </span>
+                        <span className="print-inline-text">({(departments as string[]).length} دائرة)</span>
+                      </span>
                     </h4>
                     <ul className="list-disc pr-6 space-y-2 text-gray-300">
                       {(departments as string[]).map(dept => <li key={dept}>{dept}</li>)}

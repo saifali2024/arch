@@ -1,12 +1,13 @@
+
 import React, { useState, useMemo, useCallback } from 'react';
-import { RetirementRecord } from '../types';
-import { ministryDepartments, ministriesWithCentralFunding, ministriesWithSelfFunding } from './DataEntryForm';
+import { RetirementRecord, Attachment } from '../types';
+import { ministryDepartments, getFundingType } from './DataEntryForm';
 
 interface ArchiveSearchProps {
   records: RetirementRecord[];
 }
 
-type SearchResult = Omit<RetirementRecord, 'id'> & { id: string; status: 'paid' | 'unpaid' };
+type SearchResult = RetirementRecord & { status: 'paid' | 'unpaid' };
 
 const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   const [ministryFilter, setMinistryFilter] = useState('');
@@ -25,19 +26,11 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
 
   const allDepartmentsWithFunding = useMemo(() => {
     return Object.entries(ministryDepartments).flatMap(([ministry, departments]) =>
-      departments.map(dept => {
-        let fundingType = '';
-        if (dept.name === 'شبكة الحماية الاجتماعية في البصرة') {
-          fundingType = 'مركزي';
-        } else if (dept.name === 'دائرة التقاعد والضمان الاجتماعي البصرة') {
-          fundingType = 'ذاتي';
-        } else if (ministriesWithCentralFunding.includes(ministry)) {
-          fundingType = 'مركزي';
-        } else if (ministriesWithSelfFunding.includes(ministry)) {
-          fundingType = 'ذاتي';
-        }
-        return { ministry, departmentName: dept.name, fundingType };
-      })
+      departments.map(dept => ({
+        ministry,
+        departmentName: dept.name,
+        fundingType: getFundingType(ministry, dept.name)
+      }))
     );
   }, []);
 
@@ -85,6 +78,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
               year: year,
               month: month,
               totalSalaries: 0, employeeCount: 0, deduction10: 0, deduction15: 0, deduction25: 0,
+              attachments: [],
               status: 'unpaid' as const,
             });
           }
@@ -136,7 +130,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
 
     const headers = [
       'السنة', 'الشهر', 'الوزارة', 'اسم الدائرة', 'نوع التمويل', 'حالة التسديد', 
-      'عدد الموظفين', 'مجموع الرواتب الاسمية', 'نسبة ال10%', 'نسبة ال15%', 'نسبة ال25%'
+      'عدد الموظفين', 'مجموع الرواتب الاسمية', 'نسبة ال10%', 'نسبة ال15%', 'نسبة ال25%', 'المرفقات'
     ];
 
     const rows = displayedResults.map(record => [
@@ -150,7 +144,8 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
       record.totalSalaries,
       record.deduction10,
       record.deduction15,
-      record.deduction25
+      record.deduction25,
+      `"${record.attachments?.map(a => a.name).join('; ') || ''}"`
     ]);
 
     const csvContent = [
@@ -194,8 +189,8 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   const showYearColumn = !yearFilter;
   const showMonthColumn = !monthFilter;
 
-  const colSpan = 7 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
-  const footerTextColSpan = 2 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
+  const totalTableColumns = 10 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
+  const footerTextColSpan = 5 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
 
   const getFilterSummary = () => {
     const filters = [
@@ -302,6 +297,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                     <th scope="col" className="p-3">اسم الدائرة</th>
                     <th scope="col" className="p-3">نوع التمويل</th>
                     <th scope="col" className="p-3">حالة التسديد</th>
+                    <th scope="col" className="p-3">المرفقات</th>
                     <th scope="col" className="p-3">عدد الموظفين</th>
                     <th scope="col" className="p-3">مجموع الرواتب الاسمية</th>
                     <th scope="col" className="p-3">10%</th>
@@ -323,6 +319,26 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                             {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
                           </span>
                         </td>
+                        <td className="p-3 text-right">
+                          {record.attachments && record.attachments.length > 0 ? (
+                            <div className="flex flex-col items-start gap-1">
+                              {record.attachments.map((att, index) => (
+                                <a
+                                  key={index}
+                                  href={`data:${att.type};base64,${att.data}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 hover:text-blue-300 hover:underline text-xs whitespace-nowrap"
+                                >
+                                  <i className="fas fa-file-alt ml-1"></i>
+                                  {att.name}
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
                         <td className="p-3">{record.employeeCount || '-'}</td>
                         <td className="p-3 whitespace-nowrap">{formatCurrency(record.totalSalaries)}</td>
                         <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction10)}</td>
@@ -332,7 +348,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={colSpan + 4} className="p-4 text-center text-gray-500">
+                      <td colSpan={totalTableColumns} className="p-4 text-center text-gray-500">
                         لا توجد سجلات مطابقة لمعايير البحث.
                       </td>
                     </tr>

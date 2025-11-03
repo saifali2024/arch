@@ -1,3 +1,10 @@
+
+export interface Attachment {
+  name: string;
+  type: string;
+  data: string; // base64 encoded string
+}
+
 export interface RetirementRecord {
   id: string; // Composite key: `${ministry}-${departmentName}-${year}-${month}`
   ministry: string;
@@ -10,4 +17,5 @@ export interface RetirementRecord {
   deduction10: number;
   deduction15: number;
   deduction25: number;
+  attachments?: Attachment[];
 }
