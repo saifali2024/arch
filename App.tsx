@@ -26,8 +26,8 @@ function App() {
   }, [setRecords]);
 
   return (
-    <div className="bg-gray-200 min-h-screen text-gray-800 font-sans">
-      <main className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="bg-gray-200 min-h-screen text-gray-800 font-sans flex flex-col">
+      <main className="flex-grow max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 w-full">
         <h1 className="text-3xl sm:text-4xl font-bold text-center text-gray-700 mb-2 font-pt-sans no-print">
           ارشفة التوقيفات التقاعدية
         </h1>
@@ -46,6 +46,12 @@ function App() {
           {view === 'unpaid' && <UnpaidDepartments records={records} />}
         </div>
       </main>
+      <footer className="text-center py-4 no-print bg-gray-200">
+          <p className="text-sm text-gray-500 hover:text-gray-700 transition-colors font-cairo font-bold">
+              <i className="fas fa-code ml-2"></i>
+              تصميم المبرمج سيف علي
+          </p>
+      </footer>
     </div>
   );
 }
