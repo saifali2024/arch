@@ -449,42 +449,52 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateReco
               {departmentsForSelectedMinistry.map(d => <option key={d.name} value={d.name}>{d.name}</option>)}
             </select>
           </div>
-          <div>
-            <label htmlFor="year" className={labelClasses}>السنة</label>
-            <select id="year" value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputClasses} required>
-              {years.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
+          
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label htmlFor="year" className={labelClasses}>السنة</label>
+                <select id="year" value={year} onChange={(e) => setYear(Number(e.target.value))} className={inputClasses} required>
+                  {years.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="month" className={labelClasses}>الشهر</label>
+                <select id="month" value={month} onChange={(e) => setMonth(Number(e.target.value))} className={inputClasses} required>
+                  {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="fundingType" className={labelClasses}>نوع التمويل</label>
+                <input type="text" id="fundingType" value={fundingType || 'يتم تحديده تلقائياً'} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly/>
+              </div>
           </div>
-          <div>
-            <label htmlFor="month" className={labelClasses}>الشهر</label>
-            <select id="month" value={month} onChange={(e) => setMonth(Number(e.target.value))} className={inputClasses} required>
-              {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
-            </select>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2">
+            <div>
+              <label htmlFor="totalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
+              <input type="text" inputMode="numeric" id="totalSalaries" value={formattedTotalSalaries} onChange={handleSalariesChange} className={inputClasses} placeholder="ادخل المبلغ" required />
+            </div>
+            <div>
+              <label htmlFor="employeeCount" className={labelClasses}>عدد الموظفين</label>
+              <input type="number" id="employeeCount" value={employeeCount} onChange={(e) => setEmployeeCount(e.target.value ? Number(e.target.value) : '')} className={inputClasses} required />
+            </div>
           </div>
-          <div className="md:col-span-2">
-            <label htmlFor="fundingType" className={labelClasses}>نوع التمويل</label>
-            <input type="text" id="fundingType" value={fundingType || 'يتم تحديده تلقائياً'} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly/>
+
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label htmlFor="deduction10" className={labelClasses}>توقيفات 10%</label>
+              <input type="text" id="deduction10" value={deduction10 === '' ? '' : formatCurrency(deduction10)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+            </div>
+            <div>
+              <label htmlFor="deduction15" className={labelClasses}>توقيفات 15%</label>
+              <input type="text" id="deduction15" value={deduction15 === '' ? '' : formatCurrency(deduction15)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+            </div>
+            <div>
+              <label htmlFor="deduction25" className={labelClasses}>توقيفات 25%</label>
+              <input type="text" id="deduction25" value={deduction25 === '' ? '' : formatCurrency(deduction25)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+            </div>
           </div>
-          <div className="md:col-span-2">
-            <label htmlFor="totalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
-            <input type="text" inputMode="numeric" id="totalSalaries" value={formattedTotalSalaries} onChange={handleSalariesChange} className={inputClasses} placeholder="ادخل المبلغ" required />
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="employeeCount" className={labelClasses}>عدد الموظفين</label>
-            <input type="number" id="employeeCount" value={employeeCount} onChange={(e) => setEmployeeCount(e.target.value ? Number(e.target.value) : '')} className={inputClasses} required />
-          </div>
-          <div>
-            <label htmlFor="deduction10" className={labelClasses}>توقيفات 10%</label>
-            <input type="text" id="deduction10" value={deduction10 === '' ? '' : formatCurrency(deduction10)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
-          </div>
-          <div>
-            <label htmlFor="deduction15" className={labelClasses}>توقيفات 15%</label>
-            <input type="text" id="deduction15" value={deduction15 === '' ? '' : formatCurrency(deduction15)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
-          </div>
-          <div className="md:col-span-2">
-            <label htmlFor="deduction25" className={labelClasses}>توقيفات 25%</label>
-            <input type="text" id="deduction25" value={deduction25 === '' ? '' : formatCurrency(deduction25)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
-          </div>
+
           <div className="md:col-span-2">
             <label htmlFor="attachments" className={labelClasses}>المرفقات (صور أو PDF) {isUpdateMode && <span className="text-yellow-400 text-xs">(اختياري - لتغيير المرفقات الحالية)</span>}</label>
             <input type="file" id="attachments" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500"/>

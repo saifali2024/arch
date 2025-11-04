@@ -131,12 +131,10 @@ function App() {
         <div ref={userMenuRef} className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 no-print">
             <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-3 bg-slate-800 hover:bg-slate-700/80 p-1.5 pr-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-blue-500"
+                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500"
             >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center font-bold text-white text-lg ring-1 ring-slate-600">
-                    {loggedInUser.name.charAt(0)}
-                </div>
-                <span className="hidden sm:inline font-semibold text-gray-200">{loggedInUser.name}</span>
+                <i className="fas fa-user-circle text-2xl text-amber-400"></i>
+                <span className="hidden sm:inline font-semibold text-amber-400">{loggedInUser.name}</span>
                 <i className={`fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
             </button>
             {isUserMenuOpen && (
