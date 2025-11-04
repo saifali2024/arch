@@ -91,7 +91,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
 };
   
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
       <div className="print-header">
         <h1 className="font-pt-sans">تقرير الدوائر الغير مسددة لشهر {currentMonthName} {currentYear}</h1>
         <p className="subtitle font-pt-sans">
@@ -137,7 +137,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
         )}
         
         <div className="flex flex-col sm:flex-row gap-2 mb-6">
-            <button onClick={handlePrint} disabled={isGracePeriodActive || unpaidReport.count === 0} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <button onClick={handlePrint} disabled={isGracePeriodActive || unpaidReport.count === 0} className="flex-1 bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed">
               <i className="fas fa-print ml-2"></i>طباعة التقرير
             </button>
             <button onClick={handleSendEmail} disabled={isGracePeriodActive || unpaidReport.count === 0} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-blue-400 disabled:cursor-not-allowed">
@@ -149,14 +149,14 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
       
       <div>
         {isGracePeriodActive ? (
-            <div className="text-center text-blue-400 p-6 bg-gray-700 rounded-lg no-print">
+            <div className="text-center text-blue-400 p-6 bg-slate-700 rounded-lg no-print">
                 <p>فترة السماح سارية حتى يوم {gracePeriodEndDay} من الشهر. سيتم عرض الدوائر غير المسددة بعد هذا التاريخ.</p>
             </div>
         ) : Object.keys(unpaidReport.data).length > 0 ? (
           <div className="space-y-6">
             {Object.entries(unpaidReport.data).map(([ministry, departments]) => (
               <div key={ministry} className="print-list-section">
-                <h4 className="text-lg font-bold text-orange-400 border-b-2 border-orange-500 pb-2 mb-3">{ministry}</h4>
+                <h4 className="text-lg font-bold text-amber-400 border-b-2 border-amber-500 pb-2 mb-3">{ministry}</h4>
                 <ul className="list-disc pr-6 space-y-2 text-gray-300">
                   {(departments as string[]).map(deptName => (
                     <li key={deptName}>{deptName}</li>
@@ -166,7 +166,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
             ))}
           </div>
         ) : (
-          <div className="text-center text-green-400 p-6 bg-gray-700 rounded-lg no-print">
+          <div className="text-center text-green-400 p-6 bg-slate-700 rounded-lg no-print">
             <p>رائع! جميع الدوائر قامت بتسديد مستحقاتها لهذا الشهر.</p>
           </div>
         )}

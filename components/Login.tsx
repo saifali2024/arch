@@ -1,33 +1,30 @@
 import React, { useState, FormEvent } from 'react';
 
 interface LoginProps {
-  onLoginSuccess: () => void;
+  onLogin: (username: string, password_raw: string) => boolean;
 }
 
-const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = (e: FormEvent) => {
     e.preventDefault();
-    // Simple hardcoded credentials
-    if (username === 'admin' && password === 'admin') {
-      setError('');
-      onLoginSuccess();
-    } else {
+    const success = onLogin(username, password);
+    if (!success) {
       setError('اسم المستخدم أو كلمة المرور غير صحيحة');
     }
   };
 
-  const inputClasses = "w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
+  const inputClasses = "w-full p-3 bg-slate-700 text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-200">
+    <div className="flex items-center justify-center min-h-screen bg-slate-900">
       <div className="w-full max-w-md mx-auto p-4">
         <form
           onSubmit={handleLogin}
-          className="bg-gray-800 p-8 rounded-xl shadow-lg animate-fade-in"
+          className="bg-slate-800 p-8 rounded-xl shadow-lg animate-fade-in"
         >
           <div className="text-center mb-8">
             <i className="fas fa-lock text-5xl text-blue-400 mb-4"></i>
@@ -57,7 +54,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className={`${inputClasses} pl-10`}
-                  placeholder="admin"
+                  placeholder="اسم المستخدم"
                   required
                   autoFocus
                 />
@@ -80,7 +77,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${inputClasses} pl-10`}
-                  placeholder="admin"
+                  placeholder="كلمة المرور"
                   required
                 />
               </div>
@@ -96,7 +93,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <div className="mt-8">
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500"
             >
               <i className="fas fa-sign-in-alt ml-2"></i>
               تسجيل الدخول

@@ -1,16 +1,35 @@
-
 import React, { useState, FormEvent, useEffect } from 'react';
 import { RetirementRecord, Attachment } from '../types';
 
 interface DataEntryFormProps {
   onAddRecord: (record: RetirementRecord) => void;
+  onUpdateRecord: (record: RetirementRecord) => void;
+  onDeleteRecord: (id: string) => void;
   departments: string[];
+  records: RetirementRecord[];
 }
 
 export interface DepartmentInfo {
   name: string;
   email?: string; // Optional email field
 }
+
+const formatCurrency = (value: number | string): string => {
+  if (value === null || value === undefined || value === '') return '';
+  const num = Number(String(value).replace(/,/g, ''));
+  if (isNaN(num)) return '';
+  return new Intl.NumberFormat('ar-IQ').format(num);
+};
+
+const parseCurrency = (value: string): number | '' => {
+    if (typeof value !== 'string' || value === '') return '';
+    const westernNumerals = value.replace(/[٠١٢٣٤٥٦٧٨٩]/g, d => String.fromCharCode(d.charCodeAt(0) - 1584));
+    const digitsOnly = westernNumerals.replace(/\D/g, '');
+    if (digitsOnly === '') return '';
+    const num = Number(digitsOnly);
+    return isNaN(num) ? '' : num;
+};
+
 
 export const ministryDepartments: Record<string, DepartmentInfo[]> = {
     'رئاسة الوزراء': [
@@ -204,7 +223,6 @@ export const ministriesWithSelfFunding = [
 ];
 
 export const getFundingType = (ministry: string, department: string): string => {
-  // Special cases for specific departments overriding ministry-level funding
   if (department === 'مديرية اتصالات ومعلوماتية البصرة') return 'ذاتي';
   if (department === 'دائرة التشغيل والتحكم / مديرية الاتصالات ونقل المعلومات الجنوبية') return 'مركزي';
   if (department === 'دائرة التشغيل والتحكم / مديرية مركز السيطرة الجنوبي') return 'مركزي';
@@ -215,14 +233,11 @@ export const getFundingType = (ministry: string, department: string): string => 
   if (department === 'مديرية تقاعد البصرة') return 'مركزي';
   if (department === 'مديرية خزينة محافظة البصرة') return 'مركزي';
   if (department === 'مديرية كمرك المنطقة الجنوبية') return 'مركزي';
-  
   if (department === 'دائرة التقاعد والضمان الاجتماعي البصرة') return 'ذاتي';
-  
-  // General ministry-level funding
   if (ministriesWithCentralFunding.includes(ministry)) return 'مركزي';
   if (ministriesWithSelfFunding.includes(ministry)) return 'ذاتي';
 
-  return ''; // Default if not found
+  return '';
 };
 
 const fileToBase64 = (file: File): Promise<string> => {
@@ -231,7 +246,6 @@ const fileToBase64 = (file: File): Promise<string> => {
     reader.readAsDataURL(file);
     reader.onload = () => {
       const result = reader.result as string;
-      // remove the part "data:image/png;base64,"
       const base64String = result.split(',')[1];
       resolve(base64String);
     };
@@ -240,12 +254,13 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 
-const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
+const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateRecord, onDeleteRecord, records }) => {
   const [ministry, setMinistry] = useState('');
   const [departmentName, setDepartmentName] = useState('');
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [totalSalaries, setTotalSalaries] = useState<number | ''>('');
+  const [formattedTotalSalaries, setFormattedTotalSalaries] = useState('');
   const [employeeCount, setEmployeeCount] = useState<number | ''>('');
   const [deduction10, setDeduction10] = useState<number | ''>('');
   const [deduction15, setDeduction15] = useState<number | ''>('');
@@ -253,9 +268,35 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const [fundingType, setFundingType] = useState('');
+  
+  const [existingRecord, setExistingRecord] = useState<RetirementRecord | null>(null);
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
+
 
   const ministriesList = Object.keys(ministryDepartments).sort((a,b) => a.localeCompare(b, 'ar'));
   const departmentsForSelectedMinistry = ministry ? ministryDepartments[ministry] : [];
+  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+  const months = [
+    { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
+    { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },
+    { value: 7, name: 'تموز' }, { value: 8, name: 'آب' }, { value: 9, name: 'أيلول' },
+    { value: 10, name: 'تشرين الأول' }, { value: 11, name: 'تشرين الثاني' }, { value: 12, name: 'كانون الأول' }
+  ];
+
+  useEffect(() => {
+    if (ministry && departmentName && year && month) {
+      const recordId = `${ministry}-${departmentName}-${year}-${month}`;
+      const foundRecord = records.find(r => r.id === recordId);
+      if(foundRecord){
+        setExistingRecord(foundRecord);
+        setIsUpdateMode(false); // Ensure we show the modal, not enter update mode directly
+      } else {
+        setExistingRecord(null);
+      }
+    } else {
+      setExistingRecord(null);
+    }
+  }, [ministry, departmentName, year, month, records]);
 
   useEffect(() => {
     if (ministry && departmentName) {
@@ -265,6 +306,33 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
     }
   }, [ministry, departmentName]);
 
+  useEffect(() => {
+    if (totalSalaries && totalSalaries > 0) {
+        setDeduction10(Math.round(totalSalaries * 0.10));
+        setDeduction15(Math.round(totalSalaries * 0.15));
+        setDeduction25(Math.round(totalSalaries * 0.25));
+    } else {
+        setDeduction10('');
+        setDeduction15('');
+        setDeduction25('');
+    }
+  }, [totalSalaries]);
+
+  const clearForm = () => {
+    setMinistry('');
+    setDepartmentName('');
+    setTotalSalaries('');
+    setFormattedTotalSalaries('');
+    setEmployeeCount('');
+    setDeduction10('');
+    setDeduction15('');
+    setDeduction25('');
+    setAttachments([]);
+    setIsUpdateMode(false);
+    setExistingRecord(null);
+    const fileInput = document.getElementById('attachments') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -283,8 +351,8 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
         });
     }
 
-    const newRecord: RetirementRecord = {
-      id: `${ministry}-${departmentName}-${year}-${month}`,
+    const recordId = `${ministry}-${departmentName}-${year}-${month}`;
+    const baseRecord = {
       ministry,
       fundingType: getFundingType(ministry, departmentName),
       departmentName,
@@ -295,29 +363,40 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
       deduction10: deduction10 || 0,
       deduction15: deduction15 || 0,
       deduction25: deduction25 || 0,
-      attachments: attachmentData,
     };
 
-    onAddRecord(newRecord);
-    setFeedback({ type: 'success', message: `تمت إضافة سجل ${departmentName} لشهر ${month}/${year} بنجاح!` });
+    if (isUpdateMode) {
+      const originalRecord = records.find(r => r.id === recordId);
+      const updatedRecord: RetirementRecord = {
+          ...baseRecord,
+          id: recordId,
+          attachments: attachmentData.length > 0 ? attachmentData : originalRecord?.attachments,
+      };
+      onUpdateRecord(updatedRecord);
+      setFeedback({ type: 'success', message: 'تم تحديث السجل بنجاح!' });
+    } else {
+        const newRecord: RetirementRecord = {
+            ...baseRecord,
+            id: recordId,
+            attachments: attachmentData,
+        };
+        onAddRecord(newRecord);
+        setFeedback({ type: 'success', message: `تمت إضافة سجل ${departmentName} لشهر ${month}/${year} بنجاح!` });
+    }
     
-    // Clear fields
-    setTotalSalaries('');
-    setEmployeeCount('');
-    setDeduction10('');
-    setDeduction15('');
-    setDeduction25('');
-    setAttachments([]);
-    // Reset file input element
-    const fileInput = document.getElementById('attachments') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-
+    clearForm();
     setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
+  };
+  
+  const handleSalariesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numericValue = parseCurrency(e.target.value);
+    setTotalSalaries(numericValue);
+    setFormattedTotalSalaries(numericValue === '' ? '' : formatCurrency(numericValue));
   };
   
   const handleMinistryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMinistry(e.target.value);
-    setDepartmentName(''); // Reset department when ministry changes
+    setDepartmentName('');
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -326,20 +405,35 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
     }
   };
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
-  const months = [
-    { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
-    { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },
-    { value: 7, name: 'تموز' }, { value: 8, name: 'آب' }, { value: 9, name: 'أيلول' },
-    { value: 10, name: 'تشرين الأول' }, { value: 11, name: 'تشرين الثاني' }, { value: 12, name: 'كانون الأول' }
-  ];
+  const handleStartUpdate = () => {
+    if (!existingRecord) return;
+    setIsUpdateMode(true);
+    setMinistry(existingRecord.ministry);
+    setDepartmentName(existingRecord.departmentName);
+    setYear(existingRecord.year);
+    setMonth(existingRecord.month);
+    setTotalSalaries(existingRecord.totalSalaries);
+    setFormattedTotalSalaries(formatCurrency(existingRecord.totalSalaries));
+    setEmployeeCount(existingRecord.employeeCount);
+    setAttachments([]);
+    setExistingRecord(null); // Close the modal
+  };
 
-  const inputClasses = "w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition";
+  const handleDeleteAndClear = () => {
+    if (!existingRecord) return;
+    onDeleteRecord(existingRecord.id);
+    setFeedback({ type: 'success', message: `تم حذف السجل ${existingRecord.departmentName} بنجاح.` });
+    clearForm();
+    setTimeout(() => setFeedback({ type: '', message: '' }), 4000);
+  };
+
+  const inputClasses = "w-full p-3 bg-slate-700 text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition";
   const labelClasses = "block text-sm font-medium text-gray-300 mb-1";
 
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
       <form onSubmit={handleSubmit} className="space-y-6">
+       <fieldset disabled={!!existingRecord && !isUpdateMode} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="ministry" className={labelClasses}>الوزارة</label>
@@ -369,17 +463,11 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
           </div>
           <div className="md:col-span-2">
             <label htmlFor="fundingType" className={labelClasses}>نوع التمويل</label>
-            <input
-              type="text"
-              id="fundingType"
-              value={fundingType || 'يتم تحديده تلقائياً عند اختيار الدائرة'}
-              className={`${inputClasses} bg-gray-600 cursor-not-allowed font-semibold`}
-              readOnly
-            />
+            <input type="text" id="fundingType" value={fundingType || 'يتم تحديده تلقائياً'} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly/>
           </div>
           <div className="md:col-span-2">
             <label htmlFor="totalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
-            <input type="number" id="totalSalaries" value={totalSalaries} onChange={(e) => setTotalSalaries(e.target.value ? Number(e.target.value) : '')} className={inputClasses} required />
+            <input type="text" inputMode="numeric" id="totalSalaries" value={formattedTotalSalaries} onChange={handleSalariesChange} className={inputClasses} placeholder="ادخل المبلغ" required />
           </div>
           <div className="md:col-span-2">
             <label htmlFor="employeeCount" className={labelClasses}>عدد الموظفين</label>
@@ -387,41 +475,25 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
           </div>
           <div>
             <label htmlFor="deduction10" className={labelClasses}>توقيفات 10%</label>
-            <input type="number" id="deduction10" value={deduction10} onChange={(e) => setDeduction10(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
+            <input type="text" id="deduction10" value={deduction10 === '' ? '' : formatCurrency(deduction10)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
           </div>
           <div>
             <label htmlFor="deduction15" className={labelClasses}>توقيفات 15%</label>
-            <input type="number" id="deduction15" value={deduction15} onChange={(e) => setDeduction15(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
+            <input type="text" id="deduction15" value={deduction15 === '' ? '' : formatCurrency(deduction15)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
           </div>
           <div className="md:col-span-2">
             <label htmlFor="deduction25" className={labelClasses}>توقيفات 25%</label>
-            <input type="number" id="deduction25" value={deduction25} onChange={(e) => setDeduction25(e.target.value ? Number(e.target.value) : '')} className={inputClasses} />
+            <input type="text" id="deduction25" value={deduction25 === '' ? '' : formatCurrency(deduction25)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
           </div>
           <div className="md:col-span-2">
-            <label htmlFor="attachments" className={labelClasses}>المرفقات (صور أو PDF)</label>
-            <input
-              type="file"
-              id="attachments"
-              multiple
-              accept="image/*,application/pdf"
-              onChange={handleFileChange}
-              className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-600 file:text-white hover:file:bg-gray-500 transition-colors duration-200"
-            />
+            <label htmlFor="attachments" className={labelClasses}>المرفقات (صور أو PDF) {isUpdateMode && <span className="text-yellow-400 text-xs">(اختياري - لتغيير المرفقات الحالية)</span>}</label>
+            <input type="file" id="attachments" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500"/>
             {attachments.length > 0 && (
-                <div className="mt-3 text-sm text-gray-300 bg-gray-700 p-3 rounded-lg">
-                    <p className="font-semibold mb-2">الملفات المحددة:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                        {attachments.map((file, index) => (
-                        <li key={index} className="truncate">
-                            <i className="fas fa-file ml-2 text-gray-400"></i>
-                            {file.name} ({Math.round(file.size / 1024)} KB)
-                        </li>
-                        ))}
-                    </ul>
-                </div>
+                <div className="mt-3 text-sm text-gray-300 bg-slate-700 p-3 rounded-lg"><p className="font-semibold mb-2">الملفات الجديدة المحددة:</p><ul className="list-disc list-inside space-y-1">{attachments.map((file, index) => (<li key={index} className="truncate"><i className="fas fa-file ml-2 text-gray-400"></i>{file.name}</li>))}</ul></div>
             )}
           </div>
         </div>
+        </fieldset>
 
         {feedback.message && (
           <div className={`p-4 rounded-lg text-center font-semibold ${feedback.type === 'success' ? 'bg-green-800 text-green-100' : 'bg-red-800 text-red-100'}`}>
@@ -429,11 +501,47 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord }) => {
           </div>
         )}
 
-        <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
-          <i className="fas fa-save ml-2"></i>
-          حفظ السجل
+        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed" disabled={!!existingRecord && !isUpdateMode}>
+          {isUpdateMode ? <><i className="fas fa-edit ml-2"></i> تحديث السجل</> : <><i className="fas fa-save ml-2"></i> حفظ السجل</>}
         </button>
       </form>
+      
+      {existingRecord && !isUpdateMode && (
+         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+          <div className="bg-slate-800 border-2 border-amber-500 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+             <div className="flex items-center p-4 border-b border-slate-700 bg-amber-900/30">
+               <i className="fas fa-exclamation-triangle text-3xl text-amber-400 ml-4"></i>
+               <h3 className="text-xl font-bold text-amber-300">سجل موجود مسبقاً</h3>
+            </div>
+            <div className="p-6 overflow-y-auto text-gray-300 space-y-4">
+                <p>تم العثور على سجل لهذه الدائرة لنفس الشهر والسنة. يرجى مراجعة البيانات أدناه وتحديد الإجراء المطلوب.</p>
+                <div className="bg-slate-700 p-4 rounded-lg grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                    <div><strong>الرواتب الاسمية:</strong> {formatCurrency(existingRecord.totalSalaries)} د.ع</div>
+                    <div><strong>عدد الموظفين:</strong> {existingRecord.employeeCount}</div>
+                    <div><strong>توقيفات 10%:</strong> {formatCurrency(existingRecord.deduction10)} د.ع</div>
+                    <div><strong>توقيفات 15%:</strong> {formatCurrency(existingRecord.deduction15)} د.ع</div>
+                    <div className="col-span-2"><strong>توقيفات 25%:</strong> {formatCurrency(existingRecord.deduction25)} د.ع</div>
+                    <div className="col-span-2"><strong>المرفقات الحالية:</strong> 
+                        {existingRecord.attachments && existingRecord.attachments.length > 0 
+                            ? existingRecord.attachments.map(a => a.name).join(', ') 
+                            : 'لا يوجد'
+                        }
+                    </div>
+                </div>
+            </div>
+             <div className="flex justify-end items-center p-4 border-t border-slate-700 gap-3 bg-slate-900/50">
+                <button onClick={handleDeleteAndClear} className="py-2 px-5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold">
+                    <i className="fas fa-trash-alt ml-2"></i>حذف السجل
+                </button>
+                <button onClick={handleStartUpdate} className="py-2 px-5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    <i className="fas fa-edit ml-2"></i>تحديث البيانات
+                </button>
+                 <button onClick={() => setExistingRecord(null)} className="py-2 px-5 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition-colors">إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

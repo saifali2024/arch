@@ -1,4 +1,3 @@
-
 export interface Attachment {
   name: string;
   type: string;
@@ -18,4 +17,20 @@ export interface RetirementRecord {
   deduction15: number;
   deduction25: number;
   attachments?: Attachment[];
+}
+
+export interface Permissions {
+  canEnterData: boolean;
+  canQueryData: boolean;
+  canViewStats: boolean;
+  canViewUnpaid: boolean;
+  canEditDelete: boolean;
+}
+
+export interface User {
+  id: string;
+  username: string;
+  passwordHash: string; // NOTE: In a real app, this should be a secure server-side hash.
+  role: 'admin' | 'user';
+  permissions: Permissions;
 }

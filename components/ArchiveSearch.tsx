@@ -1,15 +1,45 @@
-
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { RetirementRecord, Attachment } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
 
 interface ArchiveSearchProps {
   records: RetirementRecord[];
+  onUpdateRecord: (record: RetirementRecord) => void;
+  onDeleteRecord: (id: string) => void;
+  canEditDelete: boolean;
 }
 
 type SearchResult = RetirementRecord & { status: 'paid' | 'unpaid' };
 
-const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
+// Helper functions copied from DataEntryForm
+const formatCurrency = (value: number | string): string => {
+  if (value === null || value === undefined || value === '' || Number(value) === 0) return '0';
+  const num = Number(String(value).replace(/,/g, ''));
+  if (isNaN(num)) return '0';
+  return new Intl.NumberFormat('ar-IQ').format(num);
+};
+const parseCurrency = (value: string): number | '' => {
+    if (typeof value !== 'string' || value === '') return '';
+    const westernNumerals = value.replace(/[٠١٢٣٤٥٦٧٨٩]/g, d => String.fromCharCode(d.charCodeAt(0) - 1584));
+    const digitsOnly = westernNumerals.replace(/\D/g, '');
+    if (digitsOnly === '') return '';
+    const num = Number(digitsOnly);
+    return isNaN(num) ? '' : num;
+};
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64String = result.split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = error => reject(error);
+  });
+};
+
+const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, onDeleteRecord, canEditDelete }) => {
   const [ministryFilter, setMinistryFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [yearFilter, setYearFilter] = useState<number | ''>('');
@@ -19,6 +49,11 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
 
   const [displayedResults, setDisplayedResults] = useState<SearchResult[]>([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  
+  const [editingRecord, setEditingRecord] = useState<RetirementRecord | null>(null);
+  const [editFormData, setEditFormData] = useState<Partial<RetirementRecord>>({});
+  const [formattedSalaries, setFormattedSalaries] = useState('');
+  const [newAttachments, setNewAttachments] = useState<File[]>([]);
 
 
   const ministriesList = useMemo(() => Object.keys(ministryDepartments).sort((a,b) => a.localeCompare(b, 'ar')), []);
@@ -105,7 +140,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
     { value: 10, name: 'تشرين الأول' }, { value: 11, name: 'تشرين الثاني' }, { value: 12, name: 'كانون الأول' }
   ], []);
 
-  const formatCurrency = (value: number) => (value === 0 ? '-' : new Intl.NumberFormat('ar-IQ').format(value));
+  const formatCurrencyForDisplay = (value: number) => (value === 0 ? '-' : new Intl.NumberFormat('ar-IQ').format(value));
 
   const clearFilters = () => {
     setMinistryFilter('');
@@ -183,14 +218,79 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
     }, { totalSalaries: 0, employeeCount: 0, deduction10: 0, deduction15: 0, deduction25: 0 });
   }, [displayedResults]);
 
-  const inputClasses = "w-full p-3 bg-white text-gray-800 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-400 disabled:cursor-not-allowed";
+  const handleEditClick = (record: RetirementRecord) => {
+    setEditingRecord(record);
+    setEditFormData({
+      totalSalaries: record.totalSalaries,
+      employeeCount: record.employeeCount,
+    });
+    setFormattedSalaries(formatCurrency(record.totalSalaries));
+    setNewAttachments([]);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        onDeleteRecord(id);
+        setDisplayedResults(prev => prev.filter(r => r.id !== id));
+    }
+  };
+
+  const handleUpdateSave = async () => {
+    if (!editingRecord) return;
+
+    const attachmentData: Attachment[] = [];
+    if (newAttachments.length > 0) {
+        for (const file of newAttachments) {
+            attachmentData.push({
+                name: file.name,
+                type: file.type,
+                data: await fileToBase64(file),
+            });
+        }
+    }
+
+    const updatedRecord = {
+        ...editingRecord,
+        totalSalaries: editFormData.totalSalaries || editingRecord.totalSalaries,
+        employeeCount: editFormData.employeeCount || editingRecord.employeeCount,
+        deduction10: editFormData.deduction10 || editingRecord.deduction10,
+        deduction15: editFormData.deduction15 || editingRecord.deduction15,
+        deduction25: editFormData.deduction25 || editingRecord.deduction25,
+        attachments: newAttachments.length > 0 ? attachmentData : editingRecord.attachments,
+    };
+    onUpdateRecord(updatedRecord);
+    setDisplayedResults(prev => prev.map(r => r.id === updatedRecord.id ? { ...updatedRecord, status: 'paid' } : r));
+    setEditingRecord(null);
+  };
+  
+  useEffect(() => {
+    if (editingRecord) {
+        const salaries = typeof editFormData.totalSalaries === 'number' ? editFormData.totalSalaries : 0;
+        setEditFormData(prev => ({
+            ...prev,
+            deduction10: Math.round(salaries * 0.10),
+            deduction15: Math.round(salaries * 0.15),
+            deduction25: Math.round(salaries * 0.25),
+        }))
+    }
+  }, [editFormData.totalSalaries, editingRecord]);
+
+  const handleSalariesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numericValue = parseCurrency(e.target.value);
+    setEditFormData(prev => ({ ...prev, totalSalaries: numericValue === '' ? 0 : numericValue }));
+    setFormattedSalaries(numericValue === '' ? '' : formatCurrency(numericValue));
+  };
+
+  const inputClasses = "w-full p-3 bg-slate-600 text-white border border-slate-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-slate-500 disabled:cursor-not-allowed";
   const labelClasses = "block text-sm font-medium text-gray-300 mb-1";
   
   const showYearColumn = !yearFilter;
   const showMonthColumn = !monthFilter;
+  
+  const baseCols = 11 - (showYearColumn ? 0 : 1) - (showMonthColumn ? 0 : 1);
+  const totalTableColumns = baseCols + (canEditDelete ? 1 : 0);
+  const footerTextColSpan = totalTableColumns - 5 - (canEditDelete ? 1 : 0);
 
-  const totalTableColumns = 10 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
-  const footerTextColSpan = 5 + (showYearColumn ? 1 : 0) + (showMonthColumn ? 1 : 0);
 
   const getFilterSummary = () => {
     const filters = [
@@ -206,9 +306,9 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
        <div className="no-print">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-gray-700 rounded-lg items-end">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 p-4 bg-slate-700 rounded-lg items-end">
           <div>
             <label htmlFor="yearFilter" className={labelClasses}>السنة</label>
             <select id="yearFilter" value={yearFilter} onChange={(e) => setYearFilter(e.target.value ? Number(e.target.value) : '')} className={inputClasses}>
@@ -258,24 +358,24 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
             <button onClick={handleSearch} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
               <i className="fas fa-search ml-2"></i>تطبيق الفلاتر وعرض التقرير
             </button>
-            <button onClick={clearFilters} className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+            <button onClick={clearFilters} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
               <i className="fas fa-eraser ml-2"></i>مسح وإعادة تعيين
             </button>
           </div>
         </div>
         
         <div className="flex flex-col sm:flex-row gap-2">
-          <button onClick={handlePrint} disabled={!searchPerformed || displayedResults.length === 0} className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button onClick={handlePrint} disabled={!searchPerformed || displayedResults.length === 0} className="w-full bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed">
             <i className="fas fa-print ml-2"></i>طباعة التقرير
           </button>
-          <button onClick={handleExport} disabled={!searchPerformed || displayedResults.length === 0} className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+          <button onClick={handleExport} disabled={!searchPerformed || displayedResults.length === 0} className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
             <i className="fas fa-file-csv ml-2"></i>تصدير كملف CSV
           </button>
         </div>
       </div>
       
        <div className="printable-section">
-          <div className="mt-6 overflow-x-auto bg-gray-900 rounded-lg print-bg-white">
+          <div className="mt-6 overflow-x-auto bg-slate-900 rounded-lg print-bg-white">
             <div className="print-header">
                 <h1 className="font-pt-sans">تقرير التوقيفات التقاعدية</h1>
                 <p className="subtitle font-pt-sans">
@@ -289,7 +389,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                 </div>
             ) : (
               <table className="min-w-full text-sm text-center text-gray-300">
-                <thead className="bg-gray-700 text-xs text-gray-200 uppercase tracking-wider">
+                <thead className="bg-slate-700 text-xs text-gray-200 uppercase tracking-wider">
                   <tr>
                     {showYearColumn && <th scope="col" className="p-3">السنة</th>}
                     {showMonthColumn && <th scope="col" className="p-3">الشهر</th>}
@@ -303,12 +403,13 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                     <th scope="col" className="p-3">10%</th>
                     <th scope="col" className="p-3">15%</th>
                     <th scope="col" className="p-3">25%</th>
+                    {canEditDelete && <th scope="col" className="p-3 no-print">الإجراءات</th>}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-700">
+                <tbody className="divide-y divide-slate-700">
                   {displayedResults.length > 0 ? (
                     displayedResults.map(record => (
-                      <tr key={record.id} className="hover:bg-gray-800">
+                      <tr key={record.id} className="hover:bg-slate-700">
                         {showYearColumn && <td className="p-3">{record.year}</td>}
                         {showMonthColumn && <td className="p-3 whitespace-nowrap">{months.find(m => m.value === record.month)?.name}</td>}
                         <td className="p-3">{record.ministry}</td>
@@ -340,10 +441,34 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                           )}
                         </td>
                         <td className="p-3">{record.employeeCount || '-'}</td>
-                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.totalSalaries)}</td>
-                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction10)}</td>
-                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction15)}</td>
-                        <td className="p-3 whitespace-nowrap">{formatCurrency(record.deduction25)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(record.totalSalaries)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(record.deduction10)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(record.deduction15)}</td>
+                        <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(record.deduction25)}</td>
+                        {canEditDelete && (
+                            <td className="p-3 whitespace-nowrap no-print">
+                                {record.status === 'paid' ? (
+                                    <div className="flex items-center justify-center gap-4">
+                                        <button
+                                            onClick={() => handleEditClick(record)}
+                                            className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+                                            title="تعديل السجل"
+                                        >
+                                            <i className="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(record.id)}
+                                            className="text-red-400 hover:text-red-300 transition-colors duration-200"
+                                            title="حذف السجل"
+                                        >
+                                            <i className="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                ) : (
+                                    '-'
+                                )}
+                            </td>
+                        )}
                       </tr>
                     ))
                   ) : (
@@ -355,14 +480,15 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
                   )}
                 </tbody>
                 {displayedResults.length > 0 && totals.employeeCount > 0 && (
-                  <tfoot className="bg-gray-700 font-bold text-white">
+                  <tfoot className="bg-slate-700 font-bold text-white">
                       <tr>
                           <td colSpan={footerTextColSpan} className="p-3 text-right">المجموع (للسجلات المسددة فقط)</td>
                           <td className="p-3">{totals.employeeCount}</td>
-                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.totalSalaries)}</td>
-                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction10)}</td>
-                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction15)}</td>
-                          <td className="p-3 whitespace-nowrap">{formatCurrency(totals.deduction25)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(totals.totalSalaries)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction10)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction15)}</td>
+                          <td className="p-3 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction25)}</td>
+                          {canEditDelete && <td className="p-3 no-print"></td>}
                       </tr>
                   </tfoot>
                 )}
@@ -375,6 +501,72 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records }) => {
           </p>
           )}
       </div>
+
+      {editingRecord && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 no-print">
+          <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center p-4 border-b border-slate-700">
+              <h3 className="text-xl font-bold text-white">تعديل سجل: {editingRecord.departmentName}</h3>
+              <button onClick={() => setEditingRecord(null)} className="text-gray-400 hover:text-white transition-colors duration-200" aria-label="إغلاق">
+                <i className="fas fa-times text-2xl"></i>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto space-y-4">
+               {/* Read-only info */}
+               <div className='grid grid-cols-2 gap-4 text-sm'>
+                  <p className='text-gray-400 bg-slate-700 p-2 rounded'><strong>الوزارة:</strong> {editingRecord.ministry}</p>
+                  <p className='text-gray-400 bg-slate-700 p-2 rounded'><strong>الدائرة:</strong> {editingRecord.departmentName}</p>
+                  <p className='text-gray-400 bg-slate-700 p-2 rounded'><strong>السنة:</strong> {editingRecord.year}</p>
+                  <p className='text-gray-400 bg-slate-700 p-2 rounded'><strong>الشهر:</strong> {months.find(m => m.value === editingRecord.month)?.name}</p>
+               </div>
+               
+               {/* Editable fields */}
+               <div>
+                  <label htmlFor="editTotalSalaries" className={labelClasses}>مجموع الرواتب الاسمية</label>
+                  <input type="text" inputMode="numeric" id="editTotalSalaries" value={formattedSalaries} onChange={handleSalariesChange} className={`${inputClasses} bg-slate-700 text-white`} />
+               </div>
+               <div>
+                  <label htmlFor="editEmployeeCount" className={labelClasses}>عدد الموظفين</label>
+                  <input type="number" id="editEmployeeCount" value={editFormData.employeeCount} onChange={e => setEditFormData(prev => ({...prev, employeeCount: Number(e.target.value)}))} className={`${inputClasses} bg-slate-700 text-white`} />
+               </div>
+
+               {/* Calculated deductions */}
+               <div className='grid grid-cols-3 gap-4'>
+                    <div>
+                        <label className={labelClasses}>توقيفات 10%</label>
+                        <input type="text" value={formatCurrency(editFormData.deduction10 || 0)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+                    </div>
+                    <div>
+                        <label className={labelClasses}>توقيفات 15%</label>
+                        <input type="text" value={formatCurrency(editFormData.deduction15 || 0)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+                    </div>
+                    <div>
+                        <label className={labelClasses}>توقيفات 25%</label>
+                        <input type="text" value={formatCurrency(editFormData.deduction25 || 0)} className={`${inputClasses} bg-slate-600 cursor-not-allowed`} readOnly />
+                    </div>
+               </div>
+
+               {/* Attachments */}
+               <div>
+                <label className={labelClasses}>المرفقات</label>
+                <div className="text-xs text-gray-400 bg-slate-700 p-2 rounded mb-2">
+                    <strong>المرفقات الحالية: </strong>
+                    {editingRecord.attachments && editingRecord.attachments.length > 0 ? editingRecord.attachments.map(a => a.name).join(', ') : 'لا يوجد'}
+                </div>
+                 <input type="file" id="editAttachments" multiple accept="image/*,application/pdf" onChange={e => e.target.files && setNewAttachments(Array.from(e.target.files))} 
+                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-slate-600 file:text-white hover:file:bg-slate-500"/>
+                 <p className="text-xs text-gray-500 mt-1">اختيار ملفات جديدة سيؤدي إلى استبدال جميع المرفقات القديمة.</p>
+               </div>
+            </div>
+            <div className="flex justify-end items-center p-4 border-t border-slate-700 gap-2">
+                <button onClick={() => setEditingRecord(null)} className="py-2 px-4 bg-slate-600 text-white rounded-lg hover:bg-slate-500 transition-colors">إلغاء</button>
+                <button onClick={handleUpdateSave} className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i className="fas fa-save ml-2"></i>حفظ التغييرات
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

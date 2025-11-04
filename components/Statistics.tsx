@@ -18,7 +18,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color, onClick }) => (
   <button 
     onClick={onClick} 
-    className="bg-gray-700 p-6 rounded-lg flex items-center gap-4 w-full text-right hover:bg-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500"
+    className="bg-slate-700 p-6 rounded-lg flex items-center gap-4 w-full text-right hover:bg-slate-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-blue-500"
   >
     <div className={`text-3xl p-3 rounded-full ${color}`}>
       <i className={`fas ${icon}`}></i>
@@ -95,35 +95,35 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 statistics-cards-container">
         <StatCard 
           icon="fa-sitemap" 
           title="عدد الدوائر الكلي" 
           value={uniqueDepartmentsCount.toLocaleString('ar-IQ')} 
-          color="bg-teal-500 text-white" 
+          color="bg-blue-500 text-white" 
           onClick={() => openModal('all')}
         />
         <StatCard 
           icon="fa-building-columns" 
           title="دوائر التمويل المركزي" 
           value={centralFundingDepartmentsCount.toLocaleString('ar-IQ')} 
-          color="bg-blue-500 text-white" 
+          color="bg-amber-500 text-white" 
           onClick={() => openModal('central')}
         />
         <StatCard 
           icon="fa-wallet" 
           title="دوائر التمويل الذاتي" 
           value={selfFundingDepartmentsCount.toLocaleString('ar-IQ')} 
-          color="bg-green-500 text-white" 
+          color="bg-blue-500 text-white" 
           onClick={() => openModal('self')}
         />
       </div>
 
       {isModalOpen && modalData && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 printable-section">
-          <div className="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
-            <div className="flex justify-between items-center p-4 border-b border-gray-700 modal-print-hide no-print">
+          <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
+            <div className="flex justify-between items-center p-4 border-b border-slate-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
               <div className="flex items-center gap-2">
                 <button 
