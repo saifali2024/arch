@@ -126,7 +126,7 @@ function App() {
 
   return (
     <div className="bg-slate-900 min-h-screen text-gray-200 font-sans flex flex-col">
-      <main className="flex-grow max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 w-full relative">
+      <main className="flex-grow p-4 sm:p-6 lg:p-8 w-full relative">
         <div ref={userMenuRef} className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 no-print">
             <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -160,7 +160,7 @@ function App() {
           <Header activeView={view} setActiveView={setView} permissions={loggedInUser.permissions} role={loggedInUser.role} />
         </div>
         
-        <div className="mt-8">
+        <div className="mt-8 max-w-7xl mx-auto w-full">
           {view === 'entry' && loggedInUser.permissions.canEnterData && <DataEntryForm 
               onAddRecord={handleAddRecord} 
               departments={departments}
