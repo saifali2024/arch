@@ -175,7 +175,7 @@ function App() {
         </div>
       </main>
       <footer className="text-center py-4 no-print bg-slate-900">
-          <p className="text-sm text-gray-400 hover:text-gray-200 transition-colors font-cairo font-bold">
+          <p className="text-sm text-amber-300 hover:text-amber-200 transition-colors font-cairo font-bold">
               <i className="fas fa-code ml-2"></i>
               تصميم المبرمج سيف علي
           </p>
