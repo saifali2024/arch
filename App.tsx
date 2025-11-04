@@ -127,38 +127,39 @@ function App() {
 
   return (
     <div className="bg-slate-900 min-h-screen text-gray-200 font-sans flex flex-col">
-      <main className="flex-grow p-4 sm:p-6 lg:p-8 w-full relative">
-        <div ref={userMenuRef} className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 no-print">
-            <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500"
-            >
-                <i className="fas fa-user-circle text-2xl text-amber-400"></i>
-                <span className="hidden sm:inline font-semibold text-amber-400">{loggedInUser.name}</span>
-                <i className={`fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
-            </button>
-            {isUserMenuOpen && (
-                <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 animate-fade-in-down">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full text-right px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-3 transition-colors"
-                    >
-                        <i className="fas fa-sign-out-alt"></i>
-                        <span>تسجيل الخروج</span>
-                    </button>
-                </div>
-            )}
-        </div>
-        
-        <h1 className="text-3xl sm:text-4xl font-bold text-center text-amber-300 mb-2 font-kufam no-print">
-          ارشفة التوقيفات التقاعدية
-        </h1>
-        <p className="text-center text-gray-400 mb-8 no-print">
-          إدارة وإدخال وبحث بيانات الدوائر والمؤسسات بسهولة.
-        </p>
-
-        <div className="no-print">
-          <Header activeView={view} setActiveView={setView} permissions={loggedInUser.permissions} role={loggedInUser.role} />
+      <main className="flex-grow p-4 sm:p-6 lg:p-8 w-full">
+        <div className="sticky top-0 z-10 bg-slate-900 py-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 shadow-md no-print relative">
+            <div ref={userMenuRef} className="absolute top-2 right-4 sm:right-6 z-20 no-print">
+                <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500"
+                >
+                    <i className="fas fa-user-circle text-2xl text-amber-400"></i>
+                    <span className="hidden sm:inline font-semibold text-amber-400">{loggedInUser.name}</span>
+                    <i className={`fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
+                </button>
+                {isUserMenuOpen && (
+                    <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 animate-fade-in-down">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full text-right px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-3 transition-colors"
+                        >
+                            <i className="fas fa-sign-out-alt"></i>
+                            <span>تسجيل الخروج</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+            
+            <h1 className="text-xl sm:text-2xl font-bold text-center text-amber-300 mb-1 font-kufam">
+            ارشفة التوقيفات التقاعدية
+            </h1>
+            <p className="text-center text-gray-400 mb-3 text-sm">
+            إدارة وإدخال وبحث بيانات الدوائر والمؤسسات بسهولة.
+            </p>
+            <div>
+              <Header activeView={view} setActiveView={setView} permissions={loggedInUser.permissions} role={loggedInUser.role} />
+            </div>
         </div>
         
         <div className="mt-8 max-w-7xl mx-auto w-full">
