@@ -29,6 +29,7 @@ export interface Permissions {
 
 export interface User {
   id: string;
+  name: string;
   username: string;
   passwordHash: string; // NOTE: In a real app, this should be a secure server-side hash.
   role: 'admin' | 'user';

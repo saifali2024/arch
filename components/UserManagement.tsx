@@ -23,6 +23,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [permissions, setPermissions] = useState<Permissions>(initialPermissions);
@@ -31,6 +32,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
 
   const openAddModal = () => {
     setEditingUser(null);
+    setName('');
     setUsername('');
     setPassword('');
     setPermissions(initialPermissions);
@@ -40,6 +42,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
   
   const openEditModal = (user: User) => {
     setEditingUser(user);
+    setName(user.name);
     setUsername(user.username);
     setPassword(''); // Don't show old password
     setPermissions(user.permissions);
@@ -53,8 +56,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
   
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!username) {
-        setError('اسم المستخدم مطلوب.');
+    if (!name || !username) {
+        setError('الاسم الكامل واسم المستخدم مطلوبان.');
         return;
     }
 
@@ -68,6 +71,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
     if (editingUser) { // Update mode
         onUpdateUser({
             ...editingUser,
+            name,
             username,
             // Only update password if a new one is provided
             passwordHash: password ? hashPassword(password) : editingUser.passwordHash,
@@ -79,6 +83,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
             return;
         }
         onAddUser({
+            name,
             username,
             passwordHash: hashPassword(password),
             role: 'user',
@@ -113,7 +118,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
             <table className="min-w-full text-sm text-center text-gray-300">
                 <thead className="bg-slate-700 text-xs text-gray-200 uppercase tracking-wider">
                     <tr>
-                        <th className="p-3">اسم المستخدم</th>
+                        <th className="p-3">المستخدم</th>
                         <th className="p-3">الدور</th>
                         <th className="p-3">الصلاحيات</th>
                         <th className="p-3">الإجراءات</th>
@@ -122,7 +127,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
                 <tbody className="divide-y divide-slate-700">
                     {users.map(user => (
                         <tr key={user.id} className="hover:bg-slate-700">
-                            <td className="p-3 font-medium text-white">{user.username}</td>
+                            <td className="p-3 font-medium text-white text-right">
+                                <div>{user.name}</div>
+                                <div className="text-xs text-gray-400">@{user.username}</div>
+                            </td>
                             <td className="p-3">
                                 <span className={`px-2 py-1 text-xs font-semibold leading-tight rounded-full ${user.role === 'admin' ? 'bg-amber-600 text-amber-100' : 'bg-blue-800 text-blue-200'}`}>
                                     {user.role === 'admin' ? 'مدير' : 'مستخدم'}
@@ -160,7 +168,11 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
             </div>
             <div className="p-6 overflow-y-auto space-y-4">
                 <div>
-                    <label htmlFor="username" className={labelClasses}>اسم المستخدم</label>
+                    <label htmlFor="name" className={labelClasses}>الاسم الكامل</label>
+                    <input id="name" type="text" value={name} onChange={e => setName(e.target.value)} className={inputClasses} required />
+                </div>
+                <div>
+                    <label htmlFor="username" className={labelClasses}>اسم المستخدم (للدخول)</label>
                     <input id="username" type="text" value={username} onChange={e => setUsername(e.target.value)} className={inputClasses} required />
                 </div>
                  <div>
