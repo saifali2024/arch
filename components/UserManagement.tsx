@@ -145,14 +145,15 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
                                 </ul>
                             </td>
                             <td className="p-3 whitespace-nowrap">
-                                {user.id === currentUser.id ? (
-                                    <span className="text-gray-500"> (الحساب الحالي) </span>
-                                ) : (
-                                    <div className="flex items-center justify-center gap-4">
-                                        <button onClick={() => openEditModal(user)} className="text-blue-400 hover:text-blue-300 transition-colors" title="تعديل"><i className="fas fa-edit"></i></button>
+                                <div className="flex items-center justify-center gap-4">
+                                    {user.id === currentUser.id && (
+                                        <span className="text-xs text-gray-400 italic"> (حسابك) </span>
+                                    )}
+                                    <button onClick={() => openEditModal(user)} className="text-blue-400 hover:text-blue-300 transition-colors" title="تعديل"><i className="fas fa-edit"></i></button>
+                                    {user.id !== currentUser.id && (
                                         <button onClick={() => handleDelete(user.id)} className="text-red-400 hover:text-red-300 transition-colors" title="حذف"><i className="fas fa-trash-alt"></i></button>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </td>
                         </tr>
                     ))}
