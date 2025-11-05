@@ -45,6 +45,15 @@ const Header: React.FC<HeaderProps> = ({ activeView, setActiveView, permissions,
             الاحصائيات
           </button>
         )}
+        {permissions.canViewClassification && (
+          <button 
+            onClick={() => setActiveView('classification')} 
+            className={`${baseClasses} ${activeView === 'classification' ? activeClasses : inactiveClasses}`}
+          >
+            <i className="fas fa-trophy ml-2"></i>
+            تصنيف الدوائر
+          </button>
+        )}
         {permissions.canViewUnpaid && (
           <button 
             onClick={() => setActiveView('unpaid')} 

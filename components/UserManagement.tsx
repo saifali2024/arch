@@ -15,6 +15,7 @@ const initialPermissions: Permissions = {
   canViewStats: false,
   canViewUnpaid: false,
   canEditDelete: false,
+  canViewClassification: false,
 };
 
 const hashPassword = (password: string) => btoa(password);
@@ -193,6 +194,10 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, currentUser, onA
                          <label className={checkboxLabelClasses}>
                            <input type="checkbox" checked={permissions.canViewStats} onChange={() => handlePermissionChange('canViewStats')} className={checkboxInputClasses}/>
                            <span>الاحصائيات</span>
+                        </label>
+                        <label className={checkboxLabelClasses}>
+                           <input type="checkbox" checked={permissions.canViewClassification} onChange={() => handlePermissionChange('canViewClassification')} className={checkboxInputClasses}/>
+                           <span>تصنيف الدوائر</span>
                         </label>
                          <label className={checkboxLabelClasses}>
                            <input type="checkbox" checked={permissions.canViewUnpaid} onChange={() => handlePermissionChange('canViewUnpaid')} className={checkboxInputClasses}/>

@@ -114,6 +114,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
               month: month,
               totalSalaries: 0, employeeCount: 0, deduction10: 0, deduction15: 0, deduction25: 0,
               attachments: [],
+              submittedAt: '',
               status: 'unpaid' as const,
             });
           }
@@ -249,14 +250,15 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
         }
     }
 
-    const updatedRecord = {
+    const updatedRecord: RetirementRecord = {
         ...editingRecord,
-        totalSalaries: editFormData.totalSalaries || editingRecord.totalSalaries,
-        employeeCount: editFormData.employeeCount || editingRecord.employeeCount,
-        deduction10: editFormData.deduction10 || editingRecord.deduction10,
-        deduction15: editFormData.deduction15 || editingRecord.deduction15,
-        deduction25: editFormData.deduction25 || editingRecord.deduction25,
+        totalSalaries: editFormData.totalSalaries ?? editingRecord.totalSalaries,
+        employeeCount: editFormData.employeeCount ?? editingRecord.employeeCount,
+        deduction10: editFormData.deduction10 ?? editingRecord.deduction10,
+        deduction15: editFormData.deduction15 ?? editingRecord.deduction15,
+        deduction25: editFormData.deduction25 ?? editingRecord.deduction25,
         attachments: newAttachments.length > 0 ? attachmentData : editingRecord.attachments,
+        submittedAt: new Date().toISOString(), // Update timestamp on edit
     };
     onUpdateRecord(updatedRecord);
     setDisplayedResults(prev => prev.map(r => r.id === updatedRecord.id ? { ...updatedRecord, status: 'paid' } : r));

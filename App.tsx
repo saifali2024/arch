@@ -8,8 +8,9 @@ import Statistics from './components/Statistics';
 import UnpaidDepartments from './components/UnpaidDepartments';
 import Login from './components/Login';
 import UserManagement from './components/UserManagement';
+import Classification from './components/Classification';
 
-export type View = 'entry' | 'query' | 'stats' | 'unpaid' | 'users';
+export type View = 'entry' | 'query' | 'stats' | 'unpaid' | 'users' | 'classification';
 
 // Simple "hashing" for demonstration. Replace with a real crypto library in production.
 const hashPassword = (password: string) => btoa(password);
@@ -38,6 +39,7 @@ function App() {
           canViewStats: true,
           canViewUnpaid: true,
           canEditDelete: true,
+          canViewClassification: true,
         },
       };
       setUsers([adminUser]);
@@ -50,6 +52,7 @@ function App() {
       if (loggedInUser.permissions.canEnterData) setView('entry');
       else if (loggedInUser.permissions.canQueryData) setView('query');
       else if (loggedInUser.permissions.canViewStats) setView('stats');
+      else if (loggedInUser.permissions.canViewClassification) setView('classification');
       else if (loggedInUser.permissions.canViewUnpaid) setView('unpaid');
       else if (loggedInUser.role === 'admin') setView('users');
     }
@@ -172,6 +175,7 @@ function App() {
             />}
           {view === 'query' && loggedInUser.permissions.canQueryData && <ArchiveSearch records={records} onUpdateRecord={handleUpdateRecord} onDeleteRecord={handleDeleteRecord} canEditDelete={loggedInUser.permissions.canEditDelete} />}
           {view === 'stats' && loggedInUser.permissions.canViewStats && <Statistics records={records} />}
+          {view === 'classification' && loggedInUser.permissions.canViewClassification && <Classification records={records} />}
           {view === 'unpaid' && loggedInUser.permissions.canViewUnpaid && <UnpaidDepartments records={records} />}
           {view === 'users' && loggedInUser.role === 'admin' && <UserManagement users={users} onAddUser={handleAddUser} onUpdateUser={handleUpdateUser} onDeleteUser={handleDeleteUser} currentUser={loggedInUser} />}
         </div>

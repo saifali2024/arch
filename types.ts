@@ -17,6 +17,7 @@ export interface RetirementRecord {
   deduction15: number;
   deduction25: number;
   attachments?: Attachment[];
+  submittedAt: string; // ISO string for timestamping submission
 }
 
 export interface Permissions {
@@ -25,6 +26,7 @@ export interface Permissions {
   canViewStats: boolean;
   canViewUnpaid: boolean;
   canEditDelete: boolean;
+  canViewClassification: boolean;
 }
 
 export interface User {

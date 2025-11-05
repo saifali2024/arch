@@ -363,6 +363,7 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateReco
       deduction10: deduction10 || 0,
       deduction15: deduction15 || 0,
       deduction25: deduction25 || 0,
+      submittedAt: new Date().toISOString(), // Add timestamp
     };
 
     if (isUpdateMode) {
