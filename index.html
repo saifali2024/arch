@@ -54,6 +54,10 @@
           color: #666 !important;
         }
 
+        body.print-no-page-number::after {
+          content: "" !important;
+        }
+
         /* --- 2. CORE VISIBILITY LOGIC (SIMPLIFIED) --- */
         /* Hide all elements specifically marked as "no-print" */
         .no-print {

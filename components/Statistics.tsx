@@ -89,6 +89,17 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ title: string; data: Record<string, string[]> } | null>(null);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.classList.add('print-no-page-number');
+    } else {
+      document.body.classList.remove('print-no-page-number');
+    }
+    return () => {
+      document.body.classList.remove('print-no-page-number');
+    };
+  }, [isModalOpen]);
+
   const departmentDetails = useMemo(() => {
     const all = new Map<string, Set<string>>();
     const central = new Map<string, Set<string>>();
