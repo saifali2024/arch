@@ -19,7 +19,6 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
       return null;
     }
 
-    // Find the latest year and month from all records
     const latestPeriod = records.reduce((latest, record) => {
         const recordPeriod = record.year * 100 + record.month;
         return recordPeriod > latest ? recordPeriod : latest;
@@ -30,31 +29,43 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     const latestYear = Math.floor(latestPeriod / 100);
     const latestMonth = latestPeriod % 100;
     
-    // Get all departments that paid for the latest period
     const paidRecords = records
       .filter(r => r.year === latestYear && r.month === latestMonth)
       .sort((a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime());
 
-    // Get all departments from the master list
     const allDepartments = Object.values(ministryDepartments).flat();
     const paidDepartmentNames = new Set(paidRecords.map(r => r.departmentName));
     
-    // Find unpaid departments
     const unpaidDepartments = allDepartments
         .filter(dept => !paidDepartmentNames.has(dept.name))
         .map(dept => {
             const ministry = Object.keys(ministryDepartments).find(m => ministryDepartments[m].some(d => d.name === dept.name)) || '';
             return { departmentName: dept.name, ministry };
-        })
-        .sort((a,b) => a.departmentName.localeCompare(b.departmentName, 'ar'));
+        });
+
+    const unpaidByMinistry = unpaidDepartments.reduce((acc, dept) => {
+        const { ministry, departmentName } = dept;
+        if (!acc[ministry]) acc[ministry] = [];
+        acc[ministry].push(departmentName);
+        acc[ministry].sort((a, b) => a.localeCompare(b, 'ar'));
+        return acc;
+    }, {} as Record<string, string[]>);
+    
+    const sortedUnpaidMinistries = Object.keys(unpaidByMinistry).sort((a,b) => a.localeCompare(b, 'ar'));
 
     return {
       latestYear,
       latestMonth,
       rankedPaid: paidRecords,
-      unpaid: unpaidDepartments,
+      unpaid: unpaidByMinistry,
+      unpaidCount: unpaidDepartments.length,
+      sortedUnpaidMinistries
     };
   }, [records]);
+
+  const handlePrint = () => {
+    window.print();
+  };
   
   const getRankIcon = (rank: number) => {
     switch (rank) {
@@ -88,14 +99,31 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     );
   }
 
-  const { latestYear, latestMonth, rankedPaid, unpaid } = classificationData;
+  const { latestYear, latestMonth, rankedPaid, unpaid, unpaidCount, sortedUnpaidMinistries } = classificationData;
   const monthName = months.find(m => m.value === latestMonth)?.name;
+  const reportTitle = `تصنيف الدوائر حسب سرعة التسديد لشهر ${monthName} ${latestYear}`;
 
   return (
-    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8">
-      <h2 className="text-2xl font-bold text-amber-300 mb-4 text-center">
-        تصنيف الدوائر حسب سرعة التسديد لشهر {monthName} {latestYear}
-      </h2>
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8 printable-section">
+       <div className="print-header">
+         <h1 className="font-pt-sans">{reportTitle}</h1>
+         <p className="subtitle font-pt-sans">
+            تاريخ التقرير: {new Date().toLocaleDateString('ar-IQ')}
+         </p>
+      </div>
+
+      <div className="no-print">
+        <h2 className="text-2xl font-bold text-amber-300 mb-4 text-center">
+            {reportTitle}
+        </h2>
+        <div className="flex justify-center mb-6">
+            <button 
+                onClick={handlePrint} 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition duration-300">
+                <i className="fas fa-print ml-2"></i>طباعة التقرير
+            </button>
+        </div>
+      </div>
       
       {/* Ranked Paid Departments */}
       <div>
@@ -135,14 +163,24 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
       <div>
         <h3 className="text-xl font-semibold text-red-400 mb-4 border-b-2 border-red-500 pb-2">
             <i className="fas fa-exclamation-triangle ml-2"></i>
-            الدوائر التي لم تسدد بعد ({unpaid.length})
+            الدوائر التي لم تسدد بعد ({unpaidCount})
         </h3>
-        {unpaid.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {unpaid.map((dept, index) => (
-                    <div key={index} className="bg-slate-700 p-3 rounded-lg">
-                        <p className="font-semibold text-white">{dept.departmentName}</p>
-                        <p className="text-xs text-gray-400">{dept.ministry}</p>
+        {unpaidCount > 0 ? (
+            <div className="space-y-6">
+                {sortedUnpaidMinistries.map(ministry => (
+                    <div key={ministry} className="print-list-section">
+                        <h4 className="flex justify-between items-baseline text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
+                        <span>{ministry}</span>
+                        <span>
+                            <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
+                                {unpaid[ministry].length} دائرة
+                            </span>
+                            <span className="print-inline-text">({unpaid[ministry].length} دائرة)</span>
+                        </span>
+                        </h4>
+                        <ul className="list-disc pr-6 space-y-2 text-gray-300 columns-1 md:columns-2 lg:columns-3">
+                          {unpaid[ministry].map(deptName => <li key={deptName}>{deptName}</li>)}
+                        </ul>
                     </div>
                 ))}
             </div>
