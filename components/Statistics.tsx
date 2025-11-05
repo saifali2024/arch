@@ -1,5 +1,6 @@
 
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
 
@@ -29,6 +30,60 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color, onClick 
     </div>
   </button>
 );
+
+const PieChart = ({ chartData, title }: { chartData: any, title: string }) => {
+    const chartRef = useRef<HTMLCanvasElement>(null);
+    const chartInstanceRef = useRef<any>(null);
+
+    useEffect(() => {
+        if (chartRef.current) {
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.destroy();
+            }
+            const ctx = chartRef.current.getContext('2d');
+            if (ctx) {
+                chartInstanceRef.current = new (window as any).Chart(ctx, {
+                    type: 'pie',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: '#e2e8f0',
+                                    font: {
+                                        family: "'Cairo', sans-serif",
+                                        size: 14
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: title,
+                                color: '#fcd34d',
+                                font: {
+                                    family: "'Cairo', sans-serif",
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                        },
+                    },
+                });
+            }
+        }
+        return () => {
+            if (chartInstanceRef.current) {
+                chartInstanceRef.current.destroy();
+            }
+        };
+    }, [chartData, title]);
+
+    return <canvas ref={chartRef} />;
+};
+
 
 const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -74,10 +129,84 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
         self: mapToObject(self),
     };
   }, []);
+  
+  const totalEmployeeCount = useMemo(() => {
+    const latestRecordsMap = new Map<string, RetirementRecord>();
+
+    for (const record of records) {
+        const existingRecord = latestRecordsMap.get(record.departmentName);
+
+        if (!existingRecord) {
+            latestRecordsMap.set(record.departmentName, record);
+        } else {
+            const existingDate = (existingRecord.year * 100) + existingRecord.month;
+            const currentDate = (record.year * 100) + record.month;
+
+            if (currentDate > existingDate) {
+                latestRecordsMap.set(record.departmentName, record);
+            }
+        }
+    }
+
+    const total = Array.from(latestRecordsMap.values()).reduce((sum, record) => sum + (record.employeeCount || 0), 0);
+    
+    return total;
+  }, [records]);
 
   const uniqueDepartmentsCount = useMemo(() => Object.values(departmentDetails.all).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.all]);
   const centralFundingDepartmentsCount = useMemo(() => Object.values(departmentDetails.central).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.central]);
   const selfFundingDepartmentsCount = useMemo(() => Object.values(departmentDetails.self).reduce((acc: number, depts) => acc + (depts as string[]).length, 0), [departmentDetails.self]);
+  
+  const months = useMemo(() => [
+    { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
+    { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },
+    { value: 7, name: 'تموز' }, { value: 8, name: 'آب' }, { value: 9, name: 'أيلول' },
+    { value: 10, name: 'تشرين الأول' }, { value: 11, name: 'تشرين الثاني' }, { value: 12, name: 'كانون الأول' }
+  ], []);
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const currentMonthName = months.find(m => m.value === currentMonth)?.name;
+  const gracePeriodEndDay = 20;
+  const currentDay = new Date().getDate();
+  const isGracePeriodActive = currentDay <= gracePeriodEndDay;
+
+  const paymentStatusCounts = useMemo(() => {
+    if (isGracePeriodActive) {
+      return { paid: uniqueDepartmentsCount, unpaid: 0 };
+    }
+    const paidInCurrentMonth = new Set(
+      records
+        .filter(r => r.year === currentYear && r.month === currentMonth)
+        .map(r => r.departmentName)
+    );
+    const paidCount = paidInCurrentMonth.size;
+    const unpaidCount = uniqueDepartmentsCount - paidCount;
+    return { paid: paidCount, unpaid: unpaidCount };
+  }, [records, currentYear, currentMonth, uniqueDepartmentsCount, isGracePeriodActive]);
+
+
+  const fundingChartData = useMemo(() => ({
+    labels: ['التمويل الذاتي', 'التمويل المركزي'],
+    datasets: [{
+        label: 'عدد الدوائر',
+        data: [selfFundingDepartmentsCount, centralFundingDepartmentsCount],
+        backgroundColor: ['#f59e0b', '#3b82f6'],
+        borderColor: '#1e293b',
+        borderWidth: 2,
+    }],
+  }), [selfFundingDepartmentsCount, centralFundingDepartmentsCount]);
+
+  const paymentStatusChartData = useMemo(() => ({
+    labels: ['مسدد', 'غير مسدد'],
+    datasets: [{
+        label: 'عدد الدوائر',
+        data: [paymentStatusCounts.paid, paymentStatusCounts.unpaid],
+        backgroundColor: ['#10b981', '#ef4444'],
+        borderColor: '#1e293b',
+        borderWidth: 2,
+    }],
+  }), [paymentStatusCounts]);
 
   const openModal = (type: 'all' | 'central' | 'self') => {
     if (type === 'all') {
@@ -96,13 +225,20 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
 
   return (
     <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 statistics-cards-container">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 statistics-cards-container">
         <StatCard 
           icon="fa-sitemap" 
           title="عدد الدوائر الكلي" 
           value={uniqueDepartmentsCount.toLocaleString('ar-IQ')} 
           color="bg-blue-500 text-white" 
           onClick={() => openModal('all')}
+        />
+        <StatCard 
+          icon="fa-users" 
+          title="عدد الموظفين الكلي" 
+          value={totalEmployeeCount.toLocaleString('ar-IQ')} 
+          color="bg-green-500 text-white" 
+          onClick={() => {}}
         />
         <StatCard 
           icon="fa-building-columns" 
@@ -118,6 +254,15 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
           color="bg-blue-500 text-white" 
           onClick={() => openModal('self')}
         />
+      </div>
+      
+      <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-8 no-print">
+        <div className="bg-slate-700 p-4 rounded-lg shadow-lg relative h-80 sm:h-96">
+            <PieChart chartData={fundingChartData} title="توزيع الدوائر حسب نوع التمويل" />
+        </div>
+        <div className="bg-slate-700 p-4 rounded-lg shadow-lg relative h-80 sm:h-96">
+            <PieChart chartData={paymentStatusChartData} title={`حالة تسديد الدوائر لشهر ${currentMonthName}`} />
+        </div>
       </div>
 
       {isModalOpen && modalData && (
