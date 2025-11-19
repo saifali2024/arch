@@ -92,12 +92,23 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   
   return (
     <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in printable-section">
-      <div className="print-header">
-        <h1 className="font-pt-sans">تقرير الدوائر الغير مسددة لشهر {currentMonthName} {currentYear}</h1>
-        <p className="subtitle font-pt-sans">
-          عدد الدوائر الغير مسددة: {unpaidReport.count}
-        </p>
-      </div>
+      <div className="official-header hidden force-print-block">
+         <div className="header-side">
+             جمهورية العراق<br/>
+             وزارة المالية<br/>
+             هيئة التقاعد الوطنية - فرع البصرة
+         </div>
+         <div className="header-center">
+             <div className="header-logo"><i className="fas fa-file-invoice-dollar"></i></div>
+             <h1>تقرير الدوائر غير المسددة</h1>
+             <p>لشهر {currentMonthName} {currentYear}</p>
+             <p style={{fontSize: '10pt', marginTop: '5px'}}>عدد الدوائر: {unpaidReport.count}</p>
+         </div>
+         <div className="header-side print-text-left">
+             التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
+             العدد: ............
+         </div>
+     </div>
       
       <div className="no-print">
         <h2 className="text-2xl font-bold text-gray-100 mb-4 text-center">
@@ -170,6 +181,11 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
             <p>رائع! جميع الدوائر قامت بتسديد مستحقاتها لهذا الشهر.</p>
           </div>
         )}
+        
+        <div className="print-footer hidden force-print-block">
+            <span>نظام أرشفة التوقيفات التقاعدية</span>
+            <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
+        </div>
       </div>
     </div>
   );

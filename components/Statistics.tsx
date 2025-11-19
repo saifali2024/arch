@@ -1,5 +1,3 @@
-
-
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
@@ -221,11 +219,11 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
 
   const openModal = (type: 'all' | 'central' | 'self') => {
     if (type === 'all') {
-        setModalData({ title: 'كافة الدوائر حسب الوزارة', data: departmentDetails.all });
+        setModalData({ title: 'قائمة الدوائر الكلية', data: departmentDetails.all });
     } else if (type === 'central') {
-        setModalData({ title: 'دوائر التمويل المركزي حسب الوزارة', data: departmentDetails.central });
+        setModalData({ title: 'قائمة دوائر التمويل المركزي', data: departmentDetails.central });
     } else {
-        setModalData({ title: 'دوائر التمويل الذاتي حسب الوزارة', data: departmentDetails.self });
+        setModalData({ title: 'قائمة دوائر التمويل الذاتي', data: departmentDetails.self });
     }
     setIsModalOpen(true);
   };
@@ -298,12 +296,24 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
               </div>
             </div>
             <div className="p-6 overflow-y-auto">
-              <div className="print-header">
-                  <h1 className="font-pt-sans">{modalData.title}</h1>
-                  <p className="subtitle font-pt-sans">
-                      عدد الدوائر الكلي: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}
-                  </p>
-              </div>
+              {/* Official Header */}
+               <div className="official-header hidden force-print-block">
+                 <div className="header-side">
+                     جمهورية العراق<br/>
+                     وزارة المالية<br/>
+                     هيئة التقاعد الوطنية - فرع البصرة
+                 </div>
+                 <div className="header-center">
+                     <div className="header-logo"><i className="fas fa-chart-pie"></i></div>
+                     <h1>{modalData.title}</h1>
+                     <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
+                 </div>
+                 <div className="header-side print-text-left">
+                     التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
+                     العدد: ............
+                 </div>
+             </div>
+
               <div className="space-y-6">
                 {Object.entries(modalData.data).map(([ministry, departments]) => (
                   <div key={ministry} className="print-list-section">
@@ -313,7 +323,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                         <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
                           {(departments as string[]).length} دائرة
                         </span>
-                        <span className="print-inline-text">({(departments as string[]).length} دائرة)</span>
+                        <span className="print-inline-text hidden force-print-inline font-normal text-sm">({(departments as string[]).length} دائرة)</span>
                       </span>
                     </h4>
                     <ul className="list-disc pr-6 space-y-2 text-gray-300">
@@ -321,6 +331,11 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                     </ul>
                   </div>
                 ))}
+              </div>
+              
+               <div className="print-footer hidden force-print-block">
+                  <span>نظام أرشفة التوقيفات التقاعدية</span>
+                  <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
               </div>
             </div>
           </div>

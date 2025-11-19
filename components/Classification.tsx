@@ -101,20 +101,30 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
 
   const { latestYear, latestMonth, rankedPaid, unpaid, unpaidCount, sortedUnpaidMinistries } = classificationData;
   const monthName = months.find(m => m.value === latestMonth)?.name;
-  const reportTitle = `تصنيف الدوائر حسب سرعة التسديد لشهر ${monthName} ${latestYear}`;
+  const reportTitle = `تصنيف الدوائر حسب سرعة التسديد`;
 
   return (
     <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8 printable-section">
-       <div className="print-header">
-         <h1 className="font-pt-sans">{reportTitle}</h1>
-         <p className="subtitle font-pt-sans">
-            تاريخ التقرير: {new Date().toLocaleDateString('ar-IQ')}
-         </p>
-      </div>
+       <div className="official-header hidden force-print-block">
+         <div className="header-side">
+             جمهورية العراق<br/>
+             وزارة المالية<br/>
+             هيئة التقاعد الوطنية - فرع البصرة
+         </div>
+         <div className="header-center">
+             <div className="header-logo"><i className="fas fa-trophy"></i></div>
+             <h1>{reportTitle}</h1>
+             <p>لشهر {monthName} {latestYear}</p>
+         </div>
+         <div className="header-side print-text-left">
+             التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
+             العدد: ............
+         </div>
+     </div>
 
       <div className="no-print">
         <h2 className="text-2xl font-bold text-amber-300 mb-4 text-center">
-            {reportTitle}
+            {reportTitle} - {monthName} {latestYear}
         </h2>
         <div className="flex justify-center mb-6">
             <button 
@@ -127,7 +137,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
       
       {/* Ranked Paid Departments */}
       <div>
-        <h3 className="text-xl font-semibold text-green-400 mb-4 border-b-2 border-green-500 pb-2">
+        <h3 className="text-xl font-semibold text-green-400 mb-4 border-b-2 border-green-500 pb-2 print-text-black">
            <i className="fas fa-check-circle ml-2"></i>
            الدوائر المسددة ({rankedPaid.length})
         </h3>
@@ -145,7 +155,10 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
                 <tbody className="divide-y divide-slate-700">
                     {rankedPaid.map((record, index) => (
                         <tr key={record.id} className="hover:bg-slate-700">
-                            <td className="p-3">{getRankIcon(index + 1)}</td>
+                            <td className="p-3">
+                                <span className="no-print">{getRankIcon(index + 1)}</span>
+                                <span className="hidden force-print-inline">{index + 1}</span>
+                            </td>
                             <td className="p-3 font-medium text-white text-right">{record.departmentName}</td>
                             <td className="p-3 text-gray-400 text-right">{record.ministry}</td>
                             <td className="p-3 text-gray-400 whitespace-nowrap">{formatSubmissionDate(record.submittedAt)}</td>
@@ -161,7 +174,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
 
       {/* Unpaid Departments */}
       <div>
-        <h3 className="text-xl font-semibold text-red-400 mb-4 border-b-2 border-red-500 pb-2">
+        <h3 className="text-xl font-semibold text-red-400 mb-4 border-b-2 border-red-500 pb-2 print-text-black">
             <i className="fas fa-exclamation-triangle ml-2"></i>
             الدوائر التي لم تسدد بعد ({unpaidCount})
         </h3>
@@ -175,7 +188,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
                             <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
                                 {unpaid[ministry].length} دائرة
                             </span>
-                            <span className="print-inline-text">({unpaid[ministry].length} دائرة)</span>
+                            <span className="print-inline-text hidden force-print-inline font-normal text-sm">({unpaid[ministry].length} دائرة)</span>
                         </span>
                         </h4>
                         <ul className="list-disc pr-6 space-y-2 text-gray-300 columns-1 md:columns-2 lg:columns-3">
@@ -188,6 +201,11 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
             <p className="text-gray-400 text-center p-4 bg-slate-700 rounded-lg">جميع الدوائر قامت بالتسديد لهذا الشهر. عمل رائع!</p>
         )}
       </div>
+      
+       <div className="print-footer hidden force-print-block">
+            <span>نظام أرشفة التوقيفات التقاعدية</span>
+            <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
+        </div>
     </div>
   );
 };
