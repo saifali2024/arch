@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments } from './DataEntryForm';
@@ -105,7 +106,8 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
 
   return (
     <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8 printable-section">
-       <div className="official-header hidden force-print-block">
+       {/* Official Header - Hidden on screen, visible on print */}
+       <div className="official-header hidden print:flex">
          <div className="header-side">
              جمهورية العراق<br/>
              وزارة المالية<br/>
@@ -202,7 +204,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
         )}
       </div>
       
-       <div className="print-footer hidden force-print-block">
+       <div className="print-footer hidden print:flex">
             <span>نظام أرشفة التوقيفات التقاعدية</span>
             <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
         </div>

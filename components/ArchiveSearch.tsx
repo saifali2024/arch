@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { RetirementRecord, Attachment } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
@@ -376,86 +377,90 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
         </div>
       </div>
       
-       <div className="printable-section hidden">
-         {/* Official Header Structure */}
-         <div className="official-header">
-             <div className="header-side">
-                 جمهورية العراق<br/>
-                 وزارة المالية<br/>
-                 هيئة التقاعد الوطنية - فرع البصرة
-             </div>
-             <div className="header-center">
-                 <div className="header-logo"><i className="fas fa-file-invoice"></i></div>
-                 <h1>تقرير التوقيفات التقاعدية</h1>
-                 <p>{getFilterSummary()}</p>
-             </div>
-             <div className="header-side print-text-left">
-                 التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-                 العدد: ............
-             </div>
-         </div>
+       <div>
+         {/* Show instruction when no search performed */}
+         {!searchPerformed && (
+            <div className="p-8 text-center text-gray-400 no-print">
+                <i className="fas fa-info-circle text-4xl mb-4"></i>
+                <p>يرجى تحديد معايير البحث والضغط على زر 'تطبيق الفلاتر' لعرض النتائج.</p>
+            </div>
+         )}
 
-          <div className="mt-2">
-            {!searchPerformed ? (
-                <div className="p-8 text-center text-gray-400 no-print">
-                    <i className="fas fa-info-circle text-4xl mb-4"></i>
-                    <p>يرجى تحديد معايير البحث والضغط على زر 'تطبيق الفلاتر' لعرض النتائج.</p>
-                </div>
-            ) : (
-              <>
-              <table className="min-w-full text-sm text-center">
+         {/* Results Section - visible when searchPerformed */}
+         {searchPerformed && (
+           <div className="printable-section mt-4">
+             {/* Official Header: Hidden on screen, visible on print */}
+             <div className="official-header hidden print:flex">
+                 <div className="header-side">
+                     جمهورية العراق<br/>
+                     وزارة المالية<br/>
+                     هيئة التقاعد الوطنية - فرع البصرة
+                 </div>
+                 <div className="header-center">
+                     <div className="header-logo"><i className="fas fa-file-invoice"></i></div>
+                     <h1>تقرير التوقيفات التقاعدية</h1>
+                     <p>{getFilterSummary()}</p>
+                 </div>
+                 <div className="header-side print-text-left">
+                     التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
+                     العدد: ............
+                 </div>
+             </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-center text-gray-200">
                 <thead>
-                  <tr>
-                    {showYearColumn && <th scope="col">السنة</th>}
-                    {showMonthColumn && <th scope="col">الشهر</th>}
-                    <th scope="col">الوزارة</th>
-                    <th scope="col">اسم الدائرة</th>
-                    <th scope="col">التمويل</th>
-                    <th scope="col">الحالة</th>
-                    <th scope="col">المرفقات</th>
-                    <th scope="col">الموظفين</th>
-                    <th scope="col">الرواتب الاسمية</th>
-                    <th scope="col">10%</th>
-                    <th scope="col">15%</th>
-                    <th scope="col">25%</th>
-                    {canEditDelete && <th scope="col" className="no-print">الإجراءات</th>}
+                  <tr className="bg-slate-700 text-gray-300">
+                    {showYearColumn && <th scope="col" className="p-2">السنة</th>}
+                    {showMonthColumn && <th scope="col" className="p-2">الشهر</th>}
+                    <th scope="col" className="p-2">الوزارة</th>
+                    <th scope="col" className="p-2">اسم الدائرة</th>
+                    <th scope="col" className="p-2">التمويل</th>
+                    <th scope="col" className="p-2">الحالة</th>
+                    <th scope="col" className="p-2">المرفقات</th>
+                    <th scope="col" className="p-2">الموظفين</th>
+                    <th scope="col" className="p-2">الرواتب الاسمية</th>
+                    <th scope="col" className="p-2">10%</th>
+                    <th scope="col" className="p-2">15%</th>
+                    <th scope="col" className="p-2">25%</th>
+                    {canEditDelete && <th scope="col" className="no-print p-2">الإجراءات</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {displayedResults.length > 0 ? (
                     displayedResults.map(record => (
-                      <tr key={record.id}>
-                        {showYearColumn && <td>{record.year}</td>}
-                        {showMonthColumn && <td className="whitespace-nowrap">{months.find(m => m.value === record.month)?.name}</td>}
-                        <td>{record.ministry}</td>
-                        <td className="font-bold">{record.departmentName}</td>
-                        <td>{record.fundingType || '-'}</td>
-                        <td>
-                          <span className={`no-print px-2 py-1 rounded-full text-xs ${record.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                      <tr key={record.id} className="border-b border-slate-700 hover:bg-slate-700/50">
+                        {showYearColumn && <td className="p-2">{record.year}</td>}
+                        {showMonthColumn && <td className="whitespace-nowrap p-2">{months.find(m => m.value === record.month)?.name}</td>}
+                        <td className="p-2">{record.ministry}</td>
+                        <td className="font-bold p-2">{record.departmentName}</td>
+                        <td className="p-2">{record.fundingType || '-'}</td>
+                        <td className="p-2">
+                          <span className={`no-print px-2 py-1 rounded-full text-xs ${record.status === 'paid' ? 'bg-green-900/50 text-green-300' : 'bg-red-900/50 text-red-300'}`}>
                              {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
                           </span>
-                          <span className="print-inline-text hidden">
+                          <span className="print-inline-text hidden force-print-inline">
                             {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
                           </span>
                         </td>
-                        <td>
+                        <td className="p-2">
                           {record.attachments && record.attachments.length > 0 ? (
                              <span className="text-xs">مرفق ({record.attachments.length})</span>
                           ) : (
                             '-'
                           )}
                         </td>
-                        <td>{record.employeeCount || '-'}</td>
-                        <td className="whitespace-nowrap">{formatCurrencyForDisplay(record.totalSalaries)}</td>
-                        <td className="whitespace-nowrap">{formatCurrencyForDisplay(record.deduction10)}</td>
-                        <td className="whitespace-nowrap">{formatCurrencyForDisplay(record.deduction15)}</td>
-                        <td className="whitespace-nowrap">{formatCurrencyForDisplay(record.deduction25)}</td>
+                        <td className="p-2">{record.employeeCount || '-'}</td>
+                        <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(record.totalSalaries)}</td>
+                        <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(record.deduction10)}</td>
+                        <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(record.deduction15)}</td>
+                        <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(record.deduction25)}</td>
                         {canEditDelete && (
-                            <td className="no-print">
+                            <td className="no-print p-2">
                                 {record.status === 'paid' && (
                                     <div className="flex justify-center gap-2">
-                                        <button onClick={() => handleEditClick(record)} className="text-blue-400"><i className="fas fa-pencil-alt"></i></button>
-                                        <button onClick={() => handleDelete(record.id)} className="text-red-400"><i className="fas fa-trash-alt"></i></button>
+                                        <button onClick={() => handleEditClick(record)} className="text-blue-400 hover:text-blue-300"><i className="fas fa-pencil-alt"></i></button>
+                                        <button onClick={() => handleDelete(record.id)} className="text-red-400 hover:text-red-300"><i className="fas fa-trash-alt"></i></button>
                                     </div>
                                 )}
                             </td>
@@ -472,27 +477,27 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                 </tbody>
                 {displayedResults.length > 0 && totals.employeeCount > 0 && (
                   <tfoot>
-                      <tr>
-                          <td colSpan={footerTextColSpan} className="text-right font-bold bg-gray-200">المجموع الكلي (للمسدد فقط)</td>
-                          <td className="font-bold bg-gray-200">{totals.employeeCount}</td>
-                          <td className="font-bold bg-gray-200 whitespace-nowrap">{formatCurrencyForDisplay(totals.totalSalaries)}</td>
-                          <td className="font-bold bg-gray-200 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction10)}</td>
-                          <td className="font-bold bg-gray-200 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction15)}</td>
-                          <td className="font-bold bg-gray-200 whitespace-nowrap">{formatCurrencyForDisplay(totals.deduction25)}</td>
-                          {canEditDelete && <td className="no-print"></td>}
+                      <tr className="bg-slate-700 font-bold">
+                          <td colSpan={footerTextColSpan} className="text-right p-2">المجموع الكلي (للمسدد فقط)</td>
+                          <td className="p-2">{totals.employeeCount}</td>
+                          <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(totals.totalSalaries)}</td>
+                          <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(totals.deduction10)}</td>
+                          <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(totals.deduction15)}</td>
+                          <td className="whitespace-nowrap p-2">{formatCurrencyForDisplay(totals.deduction25)}</td>
+                          {canEditDelete && <td className="no-print p-2"></td>}
                       </tr>
                   </tfoot>
                 )}
               </table>
+            </div>
               
-              <div className="print-footer">
+              <div className="print-footer hidden print:flex">
                   <span>نظام أرشفة التوقيفات التقاعدية</span>
                   <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
               </div>
-              </>
-            )}
+            </div>
+          )}
           </div>
-      </div>
 
       {editingRecord && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 no-print">

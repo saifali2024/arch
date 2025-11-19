@@ -1,3 +1,4 @@
+
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
@@ -296,8 +297,8 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
               </div>
             </div>
             <div className="p-6 overflow-y-auto">
-              {/* Official Header */}
-               <div className="official-header hidden force-print-block">
+              {/* Official Header - Hidden on screen, visible on print */}
+               <div className="official-header hidden print:flex">
                  <div className="header-side">
                      جمهورية العراق<br/>
                      وزارة المالية<br/>
@@ -333,7 +334,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                 ))}
               </div>
               
-               <div className="print-footer hidden force-print-block">
+               <div className="print-footer hidden print:flex">
                   <span>نظام أرشفة التوقيفات التقاعدية</span>
                   <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
               </div>
