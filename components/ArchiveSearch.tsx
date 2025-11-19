@@ -290,6 +290,12 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
   const showYearColumn = !yearFilter;
   const showMonthColumn = !monthFilter;
   
+  // Calculate base columns, minus 1 for attachments which is hidden in print, but CSS handles it, so JS logic stays for colspan
+  // Actually, if we hide a column in print via CSS, the colspan might look off if we print footer.
+  // However, CSS display:none removes it from layout, so the browser recalculates table layout.
+  // The footer colspan might need adjustment if it spans specific columns. 
+  // Currently footer spans `totalTableColumns - 5`. Let's keep it simple.
+  
   const baseCols = 11 - (showYearColumn ? 0 : 1) - (showMonthColumn ? 0 : 1);
   const totalTableColumns = baseCols + (canEditDelete ? 1 : 0);
   const footerTextColSpan = totalTableColumns - 5 - (canEditDelete ? 1 : 0);
@@ -417,7 +423,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                     <th scope="col" className="p-2">اسم الدائرة</th>
                     <th scope="col" className="p-2">التمويل</th>
                     <th scope="col" className="p-2">الحالة</th>
-                    <th scope="col" className="p-2">المرفقات</th>
+                    <th scope="col" className="p-2 no-print">المرفقات</th>
                     <th scope="col" className="p-2">الموظفين</th>
                     <th scope="col" className="p-2">الرواتب الاسمية</th>
                     <th scope="col" className="p-2">10%</th>
@@ -443,7 +449,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                             {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
                           </span>
                         </td>
-                        <td className="p-2">
+                        <td className="p-2 no-print">
                           {record.attachments && record.attachments.length > 0 ? (
                              <span className="text-xs">مرفق ({record.attachments.length})</span>
                           ) : (
