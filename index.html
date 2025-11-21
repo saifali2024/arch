@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
@@ -26,7 +27,7 @@
           margin: 10mm; /* هوامش معتدلة */
         }
 
-        /* FORCE ALL TEXT TO BLACK AND BACKGROUNDS TO WHITE */
+        /* FORCE ALL TEXT TO BLACK */
         body, div, span, applet, object, iframe,
         h1, h2, h3, h4, h5, h6, p, blockquote, pre,
         a, abbr, acronym, address, big, cite, code,
@@ -35,13 +36,11 @@
         b, u, i, center,
         dl, dt, dd, ol, ul, li,
         fieldset, form, label, legend,
-        table, caption, tbody, tfoot, thead, tr, th, td,
         article, aside, canvas, details, embed, 
         figure, figcaption, footer, header, hgroup, 
         menu, nav, output, ruby, section, summary,
         time, mark, audio, video {
           color: #000 !important; /* اللون الأسود الحالك للنصوص */
-          background-color: transparent !important; /* إزالة الخلفيات الملونة */
           text-shadow: none !important;
           box-shadow: none !important;
         }
@@ -53,7 +52,7 @@
             color: #000 !important;
         }
 
-        /* Override Dark Backgrounds */
+        /* Override Dark Backgrounds (EXCEPT TABLES which we style specifically) */
         .bg-slate-900, .bg-slate-800, .bg-slate-700, .bg-slate-600 {
             background-color: transparent !important;
             border: none !important;
@@ -132,7 +131,7 @@
             margin-bottom: 5px;
         }
 
-        /* --- TABLE STYLING OPTIMIZED FOR A4 PORTRAIT --- */
+        /* --- TABLE STYLING OPTIMIZED FOR A4 PORTRAIT (STRIPED) --- */
         table {
           width: 100% !important;
           border-collapse: collapse !important;
@@ -140,11 +139,23 @@
           margin-bottom: 1rem !important;
           font-size: 7.5pt !important; /* تصغير الخط ليتناسب مع العرض العمودي */
           color: #000 !important;
-          table-layout: auto !important; /* يسمح للأعمدة بأخذ العرض المناسب */
+          table-layout: auto !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
         }
 
         thead {
             display: table-header-group;
+        }
+        
+        /* Header Row Styling */
+        thead tr th {
+            background-color: #d1d5db !important; /* رمادي متوسط للترويسة */
+            color: #000 !important;
+            font-weight: bold !important;
+            border: 1px solid #000 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         tfoot {
@@ -158,37 +169,40 @@
 
         th, td {
           border: 1px solid #000 !important;
-          padding: 2px 3px !important; /* تقليل الحواشي بشكل أكبر لتوفير المساحة */
+          padding: 2px 4px !important;
           text-align: center !important;
           vertical-align: middle !important;
           color: #000 !important;
-          white-space: nowrap; /* منع التفاف النص للأرقام والتواريخ */
+          white-space: nowrap;
         }
 
-        /* السماح بالتفاف النص فقط لاسم الدائرة والوزارة */
         td:nth-child(3), td:nth-child(4) {
             white-space: normal !important;
-            min-width: 80px; /* تقليل العرض الأدنى */
+            min-width: 80px;
         }
 
-        th {
-          background-color: #f3f4f6 !important;
-          color: #000 !important;
-          font-weight: bold !important;
-          font-size: 7.5pt !important;
-          -webkit-print-color-adjust: exact !important;
-          print-color-adjust: exact !important;
+        /* Zebra Striping Logic */
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff !important; /* أبيض للصفوف الفردية */
         }
-        
+
         tbody tr:nth-child(even) {
-            background-color: #f9fafb !important;
+            background-color: #e5e7eb !important; /* رمادي فاتح للصفوف الزوجية */
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+        }
+        
+        /* Footer Row Styling */
+        tfoot tr {
+             background-color: #d1d5db !important;
+             font-weight: bold !important;
+             -webkit-print-color-adjust: exact !important;
+             print-color-adjust: exact !important;
         }
 
         /* --- LIST STYLING --- */
         .print-list-section h4 {
-            background-color: #f3f4f6 !important;
+            background-color: #e5e7eb !important;
             color: #000 !important;
             border: 1px solid #000 !important;
             padding: 5px 10px !important;
