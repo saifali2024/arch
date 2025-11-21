@@ -234,7 +234,8 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+    <>
+    <div className={`bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in ${isModalOpen ? 'print:hidden' : ''}`}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 statistics-cards-container">
         <StatCard 
           icon="fa-sitemap" 
@@ -274,10 +275,11 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
             <PieChart chartData={paymentStatusChartData} title={`حالة تسديد الدوائر لشهر ${currentMonthName}`} />
         </div>
       </div>
+    </div>
 
-      {isModalOpen && modalData && (
+    {isModalOpen && modalData && (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 printable-section print-portrait">
-          <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
+          <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container bg-white text-black">
             <div className="flex justify-between items-center p-4 border-b border-slate-700 modal-print-hide no-print">
               <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
               <div className="flex items-center gap-2">
@@ -315,10 +317,10 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                  </div>
              </div>
 
-              <div className="space-y-6">
+              <div className="space-y-6 mt-4">
                 {Object.entries(modalData.data).map(([ministry, departments]) => (
-                  <div key={ministry} className="print-list-section">
-                    <h4 className="flex justify-between items-baseline text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
+                  <div key={ministry} className="print-list-section break-inside-avoid">
+                    <h4 className="flex justify-between items-baseline text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3 print:text-black print:border-black">
                       <span>{ministry}</span>
                       <span>
                         <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
@@ -327,9 +329,23 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                         <span className="print-inline-text hidden force-print-inline font-normal text-sm">({(departments as string[]).length} دائرة)</span>
                       </span>
                     </h4>
-                    <ul className="list-disc pr-6 space-y-2 text-gray-300">
-                      {(departments as string[]).map(dept => <li key={dept}>{dept}</li>)}
-                    </ul>
+                    
+                    <table className="min-w-full text-sm text-center border border-gray-900 mb-4">
+                        <thead>
+                            <tr className="bg-gray-200 text-black font-bold print:bg-gray-300">
+                                <th className="p-1 border border-black w-12">ت</th>
+                                <th className="p-1 border border-black text-right pr-4">اسم الدائرة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {(departments as string[]).map((dept, idx) => (
+                                <tr key={dept} className="print:break-inside-avoid">
+                                    <td className="p-1 border border-black">{idx + 1}</td>
+                                    <td className="p-1 border border-black text-right pr-4 font-bold">{dept}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                   </div>
                 ))}
               </div>
@@ -342,7 +358,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
