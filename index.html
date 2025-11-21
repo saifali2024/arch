@@ -158,7 +158,7 @@
           border-collapse: collapse !important;
           border: 1px solid #000 !important;
           margin-bottom: 1rem !important;
-          font-size: 9pt !important; 
+          font-size: 7.5pt !important; /* Smaller font to fit portrait A4 */
           color: #000 !important;
           table-layout: auto !important; 
           -webkit-print-color-adjust: exact !important;
@@ -175,8 +175,9 @@
             color: #000 !important;
             font-weight: bold !important;
             border: 1px solid #000 !important;
-            padding: 4px 2px !important;
-            white-space: nowrap; /* منع التفاف العناوين */
+            padding: 3px 2px !important;
+            white-space: nowrap;
+            vertical-align: middle;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
@@ -192,7 +193,7 @@
 
         th, td {
           border: 1px solid #000 !important;
-          padding: 4px 3px !important; /* Increased padding slightly for clarity */
+          padding: 3px 2px !important; /* Tight padding for portrait */
           text-align: center !important;
           vertical-align: middle !important;
           color: #000 !important;
@@ -218,9 +219,16 @@
         td:nth-child(3), /* الوزارة */
         td:nth-child(4) { /* الدائرة */
             white-space: normal !important;
-            min-width: 100px;
+            max-width: 110px; /* Force wrap if too long in portrait */
             text-align: right !important;
-            padding-right: 5px !important;
+            padding-right: 4px !important;
+        }
+        
+        /* Attachments column */
+        td:nth-child(7) {
+             white-space: normal !important;
+             max-width: 60px;
+             font-size: 6.5pt !important;
         }
 
         /* --- LIST STYLING --- */

@@ -388,7 +388,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
 
          {/* Results Section - visible when searchPerformed */}
          {searchPerformed && (
-           <div className="printable-section mt-4 print-landscape">
+           <div className="printable-section mt-4 print-portrait">
              {/* Official Header: Hidden on screen, visible on print */}
              <div className="official-header hidden print:flex">
                  <div className="header-side">
