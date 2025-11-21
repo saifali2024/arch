@@ -1,3 +1,4 @@
+
 import React, { useState, FormEvent, useEffect } from 'react';
 import { RetirementRecord, Attachment } from '../types';
 
@@ -60,6 +61,7 @@ export const ministryDepartments: Record<string, DepartmentInfo[]> = {
       { name: 'مديرية بلدية الثغر' },
       { name: 'مديرية بلدية الصادق' },
       { name: 'مديرية بلدية ام قصر' },
+      { name: 'مديرية بلدية الشافي' },
       { name: 'ديوان محافظة البصرة', email: 'diwan.basra@gov.iq' },
       { name: 'مجلس محافظة البصرة' },
       { name: 'مديرية ماء البصرة', email: 'water.basra@gov.iq' },
@@ -224,6 +226,7 @@ export const ministriesWithSelfFunding = [
 
 export const getFundingType = (ministry: string, department: string): string => {
   if (department === 'مديرية اتصالات ومعلوماتية البصرة') return 'ذاتي';
+  if (department === 'مديرية بلدية الشافي') return 'مركزي';
   if (department === 'دائرة التشغيل والتحكم / مديرية الاتصالات ونقل المعلومات الجنوبية') return 'مركزي';
   if (department === 'دائرة التشغيل والتحكم / مديرية مركز السيطرة الجنوبي') return 'مركزي';
   if (department === 'شبكة الحماية الاجتماعية في البصرة') return 'مركزي';
