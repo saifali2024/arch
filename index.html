@@ -20,11 +20,33 @@
         font-family: 'Cairo', sans-serif;
       }
 
-      /* --- PRINT STYLES (A4 Landscape Optimization) --- */
+      /* --- PRINT STYLES --- */
       @media print {
+        /* Define Page Orientations */
         @page {
-          size: A4 landscape; /* تحويل للوضع الأفقي لاستيعاب كل الأعمدة */
-          margin: 5mm; /* هوامش ضيقة جداً لاستغلال المساحة */
+            margin: 5mm; /* هوامش صغيرة جداً عالمياً */
+            size: auto; /* Auto allows specific classes to override */
+        }
+
+        @page landscape-page {
+            size: A4 landscape;
+            margin: 5mm;
+        }
+
+        @page portrait-page {
+            size: A4 portrait;
+            margin: 5mm;
+        }
+
+        /* Utility Classes to Trigger Orientation */
+        .print-landscape {
+            page: landscape-page;
+            width: 100% !important;
+        }
+
+        .print-portrait {
+            page: portrait-page;
+            width: 100% !important;
         }
 
         /* FORCE ALL TEXT TO BLACK */
@@ -130,15 +152,15 @@
             margin-bottom: 5px;
         }
 
-        /* --- TABLE STYLING OPTIMIZED FOR A4 LANDSCAPE (ALL COLUMNS) --- */
+        /* --- TABLE STYLING OPTIMIZED --- */
         table {
           width: 100% !important;
           border-collapse: collapse !important;
           border: 1px solid #000 !important;
           margin-bottom: 1rem !important;
-          font-size: 9pt !important; /* حجم خط مناسب للوضع الأفقي */
+          font-size: 9pt !important; 
           color: #000 !important;
-          table-layout: auto !important; /* السماح للجدول بتوزيع العرض بذكاء */
+          table-layout: auto !important; 
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
@@ -170,7 +192,7 @@
 
         th, td {
           border: 1px solid #000 !important;
-          padding: 3px 2px !important;
+          padding: 4px 3px !important; /* Increased padding slightly for clarity */
           text-align: center !important;
           vertical-align: middle !important;
           color: #000 !important;
@@ -196,8 +218,7 @@
         td:nth-child(3), /* الوزارة */
         td:nth-child(4) { /* الدائرة */
             white-space: normal !important;
-            min-width: 120px;
-            max-width: 200px;
+            min-width: 100px;
             text-align: right !important;
             padding-right: 5px !important;
         }
@@ -216,7 +237,8 @@
             print-color-adjust: exact !important;
         }
 
-        .print-list-section ul {
+        /* Portrait List Styling (2 columns usually better for A4 Portrait) */
+        .print-portrait .print-list-section ul {
             border: 1px solid #000 !important;
             border-top: none !important;
             padding: 0 !important;
@@ -225,18 +247,24 @@
             flex-wrap: wrap;
         }
 
-        .print-list-section ul li {
+        .print-portrait .print-list-section ul li {
             list-style: none;
-            width: 33.33%; /* 3 columns in landscape */
+            width: 50%; /* 2 columns in portrait for readability */
             box-sizing: border-box;
             padding: 3px 6px !important;
             border-bottom: 1px dashed #ccc !important;
             border-left: 1px dashed #eee !important;
-            font-size: 9pt !important;
+            font-size: 10pt !important; /* Slightly larger font for lists */
             color: #000 !important;
         }
-        .print-list-section ul li:nth-last-child(-n+3) {
+
+        .print-portrait .print-list-section ul li:nth-last-child(-n+2) {
              border-bottom: none !important;
+        }
+
+         /* Landscape List Styling (3 columns) */
+        .print-landscape .print-list-section ul li {
+             width: 33.33%;
         }
         
         /* --- FOOTER --- */

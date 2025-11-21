@@ -105,7 +105,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
   const reportTitle = `تصنيف الدوائر حسب سرعة التسديد`;
 
   return (
-    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8 printable-section">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in space-y-8 printable-section print-portrait">
        {/* Official Header - Hidden on screen, visible on print */}
        <div className="official-header hidden print:flex">
          <div className="header-side">

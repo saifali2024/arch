@@ -290,12 +290,6 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
   const showYearColumn = !yearFilter;
   const showMonthColumn = !monthFilter;
   
-  // Calculate base columns, minus 1 for attachments which is hidden in print, but CSS handles it, so JS logic stays for colspan
-  // Actually, if we hide a column in print via CSS, the colspan might look off if we print footer.
-  // However, CSS display:none removes it from layout, so the browser recalculates table layout.
-  // The footer colspan might need adjustment if it spans specific columns. 
-  // Currently footer spans `totalTableColumns - 5`. Let's keep it simple.
-  
   const baseCols = 11 - (showYearColumn ? 0 : 1) - (showMonthColumn ? 0 : 1);
   const totalTableColumns = baseCols + (canEditDelete ? 1 : 0);
   const footerTextColSpan = totalTableColumns - 5 - (canEditDelete ? 1 : 0);
@@ -394,7 +388,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
 
          {/* Results Section - visible when searchPerformed */}
          {searchPerformed && (
-           <div className="printable-section mt-4">
+           <div className="printable-section mt-4 print-landscape">
              {/* Official Header: Hidden on screen, visible on print */}
              <div className="official-header hidden print:flex">
                  <div className="header-side">
