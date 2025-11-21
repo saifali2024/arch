@@ -22,7 +22,7 @@
       /* --- PRINT STYLES (A4 Optimization) --- */
       @media print {
         @page {
-          size: A4 landscape; /* تحديد حجم الورقة A4 والاتجاه أفقي */
+          size: A4 portrait; /* تحديد حجم الورقة A4 والاتجاه عمودي */
           margin: 10mm; /* هوامش معتدلة */
         }
 
@@ -65,8 +65,8 @@
           padding: 0 !important;
           font-family: var(--print-font) !important;
           width: 100% !important;
-          /* Ensure content fits within A4 Landscape width (~297mm minus margins) */
-          max-width: 277mm !important; 
+          /* Ensure content fits within A4 Portrait width (~210mm minus margins) */
+          max-width: 190mm !important; 
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
@@ -102,7 +102,7 @@
         .header-side {
             text-align: center;
             width: 25%;
-            font-size: 10pt;
+            font-size: 9pt;
             line-height: 1.3;
             font-weight: bold;
             color: #000 !important;
@@ -114,31 +114,31 @@
         }
         
         .header-center h1 {
-            font-size: 16pt !important;
+            font-size: 14pt !important;
             font-weight: 900 !important;
             margin: 0 0 5px 0 !important;
             color: #000 !important;
         }
         
         .header-center p {
-            font-size: 11pt !important;
+            font-size: 10pt !important;
             color: #000 !important;
             margin: 0 !important;
         }
 
         .header-logo {
-            font-size: 30pt;
+            font-size: 24pt;
             color: #000 !important;
             margin-bottom: 5px;
         }
 
-        /* --- TABLE STYLING OPTIMIZED FOR A4 --- */
+        /* --- TABLE STYLING OPTIMIZED FOR A4 PORTRAIT --- */
         table {
           width: 100% !important;
           border-collapse: collapse !important;
           border: 1px solid #000 !important;
           margin-bottom: 1rem !important;
-          font-size: 9pt !important; /* تصغير الخط ليتناسب مع A4 */
+          font-size: 7.5pt !important; /* تصغير الخط ليتناسب مع العرض العمودي */
           color: #000 !important;
           table-layout: auto !important; /* يسمح للأعمدة بأخذ العرض المناسب */
         }
@@ -158,7 +158,7 @@
 
         th, td {
           border: 1px solid #000 !important;
-          padding: 3px 4px !important; /* تقليل الحواشي لتوفير المساحة */
+          padding: 2px 3px !important; /* تقليل الحواشي بشكل أكبر لتوفير المساحة */
           text-align: center !important;
           vertical-align: middle !important;
           color: #000 !important;
@@ -168,14 +168,14 @@
         /* السماح بالتفاف النص فقط لاسم الدائرة والوزارة */
         td:nth-child(3), td:nth-child(4) {
             white-space: normal !important;
-            min-width: 100px;
+            min-width: 80px; /* تقليل العرض الأدنى */
         }
 
         th {
           background-color: #f3f4f6 !important;
           color: #000 !important;
           font-weight: bold !important;
-          font-size: 9pt !important;
+          font-size: 7.5pt !important;
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
         }
@@ -192,7 +192,7 @@
             color: #000 !important;
             border: 1px solid #000 !important;
             padding: 5px 10px !important;
-            font-size: 12pt !important;
+            font-size: 11pt !important;
             font-weight: bold !important;
             margin-top: 15px !important;
             margin-bottom: 0 !important;
@@ -211,15 +211,15 @@
 
         .print-list-section ul li {
             list-style: none;
-            width: 33.33%; /* Three columns for lists on landscape A4 */
+            width: 50%; /* Two columns for lists on portrait A4 usually better */
             box-sizing: border-box;
-            padding: 4px 8px !important;
+            padding: 3px 6px !important;
             border-bottom: 1px dashed #ccc !important;
-            border-left: 1px dashed #eee !important; /* Add light vertical separators */
-            font-size: 10pt !important;
+            border-left: 1px dashed #eee !important;
+            font-size: 9pt !important;
             color: #000 !important;
         }
-        .print-list-section ul li:nth-last-child(-n+3) {
+        .print-list-section ul li:nth-last-child(-n+2) {
              border-bottom: none !important;
         }
         
@@ -231,7 +231,7 @@
             right: 0;
             border-top: 1px solid #000;
             padding-top: 5px;
-            font-size: 8pt;
+            font-size: 7pt;
             display: flex;
             justify-content: space-between;
             color: #000 !important;
