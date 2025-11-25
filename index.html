@@ -106,7 +106,14 @@
           padding: 0 !important;
           background: white !important;
           box-shadow: none !important;
-          overflow: hidden !important; /* Prevent spillover pages */
+          overflow: visible !important; /* ALLOW OVERFLOW FOR MULTI-PAGE */
+          height: auto !important;
+        }
+
+        /* Ensure modals or containers inside printable section don't clip */
+        .printable-section * {
+            max-height: none !important;
+            overflow: visible !important;
         }
 
         /* --- OFFICIAL HEADER (LETTERHEAD) --- */

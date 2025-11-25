@@ -89,17 +89,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState<{ title: string; data: Record<string, string[]> } | null>(null);
 
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.classList.add('print-no-page-number');
-    } else {
-      document.body.classList.remove('print-no-page-number');
-    }
-    return () => {
-      document.body.classList.remove('print-no-page-number');
-    };
-  }, [isModalOpen]);
-
   const departmentDetails = useMemo(() => {
     const all = new Map<string, Set<string>>();
     const central = new Map<string, Set<string>>();
@@ -277,79 +266,109 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
       </div>
 
       {isModalOpen && modalData && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 printable-section print-portrait">
-          <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-container">
-            <div className="flex justify-between items-center p-4 border-b border-slate-700 modal-print-hide no-print">
-              <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
-              <div className="flex items-center gap-2">
-                <button 
-                  onClick={handlePrint} 
-                  className="flex items-center gap-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200">
-                  <i className="fas fa-print"></i>
-                  <span>طباعة</span>
-                </button>
-                <button 
-                  onClick={() => setIsModalOpen(false)} 
-                  className="text-gray-400 hover:text-white transition-colors duration-200" 
-                  aria-label="إغلاق"
-                >
-                  <i className="fas fa-times text-2xl"></i>
-                </button>
-              </div>
-            </div>
-            <div className="p-6 overflow-y-auto">
-              {/* Official Header - Hidden on screen, visible on print */}
-               <div className="official-header hidden print:flex">
-                 <div className="header-side">
-                     جمهورية العراق<br/>
-                     وزارة المالية<br/>
-                     هيئة التقاعد الوطنية - فرع البصرة
-                 </div>
-                 <div className="header-center">
-                     <img src="logo.png" alt="الشعار" className="header-logo-img" />
-                     <h1>{modalData.title}</h1>
-                     <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
-                 </div>
-                 <div className="header-side print-text-left">
-                     التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-                     العدد: ............
-                 </div>
-             </div>
-
-              {/* Converted to Table for Professional Portrait Print */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-center text-gray-200 border-collapse border border-gray-600">
-                  <thead>
-                      <tr className="bg-slate-700 text-gray-200">
-                          <th className="p-2 border border-gray-600 w-16">ت</th>
-                          <th className="p-2 border border-gray-600">اسم الدائرة</th>
-                      </tr>
-                  </thead>
-                  {Object.entries(modalData.data).map(([ministry, departments]) => (
-                    <tbody key={ministry}>
-                         <tr className="section-header bg-slate-600 print:bg-gray-200">
-                            <td colSpan={2} className="p-2 font-bold text-amber-300 print:text-black border border-gray-600 text-right">
-                                {ministry} <span className="text-xs font-normal">({(departments as string[]).length} دائرة)</span>
-                            </td>
-                        </tr>
-                        {(departments as string[]).map((dept, index) => (
-                            <tr key={dept} className="border-b border-gray-700 print:border-gray-300">
-                                <td className="p-2 border border-gray-600">{index + 1}</td>
-                                <td className="p-2 border border-gray-600 text-right">{dept}</td>
+        <>
+            {/* Screen Modal - Hidden on Print */}
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 no-print">
+              <div className="bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+                <div className="flex justify-between items-center p-4 border-b border-slate-700">
+                  <h3 className="text-xl font-bold text-white">{modalData.title}</h3>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handlePrint} 
+                      className="flex items-center gap-2 py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200">
+                      <i className="fas fa-print"></i>
+                      <span>طباعة</span>
+                    </button>
+                    <button 
+                      onClick={() => setIsModalOpen(false)} 
+                      className="text-gray-400 hover:text-white transition-colors duration-200" 
+                      aria-label="إغلاق"
+                    >
+                      <i className="fas fa-times text-2xl"></i>
+                    </button>
+                  </div>
+                </div>
+                <div className="p-6 overflow-y-auto">
+                   <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm text-center text-gray-200 border-collapse border border-gray-600">
+                      <thead>
+                          <tr className="bg-slate-700 text-gray-200">
+                              <th className="p-2 border border-gray-600 w-16">ت</th>
+                              <th className="p-2 border border-gray-600">اسم الدائرة</th>
+                          </tr>
+                      </thead>
+                      {Object.entries(modalData.data).map(([ministry, departments]) => (
+                        <tbody key={ministry}>
+                             <tr className="bg-slate-600">
+                                <td colSpan={2} className="p-2 font-bold text-amber-300 border border-gray-600 text-right">
+                                    {ministry} <span className="text-xs font-normal">({(departments as string[]).length} دائرة)</span>
+                                </td>
                             </tr>
-                        ))}
-                    </tbody>
-                  ))}
-                </table>
-              </div>
-              
-               <div className="print-footer hidden print:flex">
-                  <span>نظام أرشفة التوقيفات التقاعدية</span>
-                  <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
+                            {(departments as string[]).map((dept, index) => (
+                                <tr key={dept} className="border-b border-gray-700">
+                                    <td className="p-2 border border-gray-600">{index + 1}</td>
+                                    <td className="p-2 border border-gray-600 text-right">{dept}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                      ))}
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+
+            {/* Print Layout - Hidden on Screen */}
+            <div className="printable-section print-portrait hidden print:block">
+                 <div className="official-header">
+                     <div className="header-side">
+                         جمهورية العراق<br/>
+                         وزارة المالية<br/>
+                         هيئة التقاعد الوطنية - فرع البصرة
+                     </div>
+                     <div className="header-center">
+                         <img src="logo.png" alt="الشعار" className="header-logo-img" />
+                         <h1>{modalData.title}</h1>
+                         <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
+                     </div>
+                     <div className="header-side print-text-left">
+                         التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
+                         العدد: ............
+                     </div>
+                 </div>
+
+                 <div className="overflow-x-auto">
+                    <table className="min-w-full text-sm text-center text-gray-200 border-collapse border border-gray-600">
+                      <thead>
+                          <tr className="bg-slate-700 text-gray-200">
+                              <th className="p-2 border border-gray-600 w-16">ت</th>
+                              <th className="p-2 border border-gray-600">اسم الدائرة</th>
+                          </tr>
+                      </thead>
+                      {Object.entries(modalData.data).map(([ministry, departments]) => (
+                        <tbody key={ministry}>
+                             <tr className="section-header bg-slate-600 print:bg-gray-200">
+                                <td colSpan={2} className="p-2 font-bold text-amber-300 print:text-black border border-gray-600 text-right">
+                                    {ministry} <span className="text-xs font-normal">({(departments as string[]).length} دائرة)</span>
+                                </td>
+                            </tr>
+                            {(departments as string[]).map((dept, index) => (
+                                <tr key={dept} className="border-b border-gray-700 print:border-gray-300">
+                                    <td className="p-2 border border-gray-600">{index + 1}</td>
+                                    <td className="p-2 border border-gray-600 text-right">{dept}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                      ))}
+                    </table>
+                 </div>
+                 
+                 <div className="print-footer hidden print:flex">
+                      <span>نظام أرشفة التوقيفات التقاعدية</span>
+                      <span>تاريخ الطباعة: {new Date().toLocaleString('ar-IQ')}</span>
+                 </div>
+            </div>
+        </>
       )}
     </div>
   );
