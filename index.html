@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
   <head>
@@ -105,6 +106,7 @@
           padding: 0 !important;
           background: white !important;
           box-shadow: none !important;
+          overflow: hidden !important; /* Prevent spillover pages */
         }
 
         /* --- OFFICIAL HEADER (LETTERHEAD) --- */
@@ -121,7 +123,7 @@
         
         .header-side {
             text-align: center;
-            width: 20%;
+            width: 25%;
             font-size: 10pt;
             line-height: 1.3;
             font-weight: bold;
@@ -130,7 +132,7 @@
 
         .header-center {
             text-align: center;
-            width: 60%;
+            width: 50%;
         }
         
         .header-center h1 {
@@ -146,10 +148,12 @@
             margin: 0 !important;
         }
 
-        .header-logo {
-            font-size: 20pt;
-            color: #000 !important;
-            margin-bottom: 5px;
+        /* Updated Logo Style */
+        .header-logo-img {
+            height: 90px;
+            width: auto;
+            display: block;
+            margin: 0 auto 5px auto;
         }
 
         /* --- TABLE STYLING OPTIMIZED --- */

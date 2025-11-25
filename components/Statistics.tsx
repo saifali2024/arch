@@ -1,4 +1,5 @@
 
+
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
@@ -305,7 +306,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                      هيئة التقاعد الوطنية - فرع البصرة
                  </div>
                  <div className="header-center">
-                     <div className="header-logo"><i className="fas fa-chart-pie"></i></div>
+                     <img src="logo.png" alt="الشعار" className="header-logo-img" />
                      <h1>{modalData.title}</h1>
                      <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
                  </div>

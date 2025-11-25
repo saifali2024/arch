@@ -1,4 +1,5 @@
 
+
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { RetirementRecord, Attachment } from '../types';
 import { ministryDepartments, getFundingType } from './DataEntryForm';
@@ -397,7 +398,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                      هيئة التقاعد الوطنية - فرع البصرة
                  </div>
                  <div className="header-center">
-                     <div className="header-logo"><i className="fas fa-file-invoice"></i></div>
+                     <img src="logo.png" alt="الشعار" className="header-logo-img" />
                      <h1>تقرير التوقيفات التقاعدية</h1>
                      <p>{getFilterSummary()}</p>
                  </div>

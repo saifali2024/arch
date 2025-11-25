@@ -1,4 +1,5 @@
 
+
 import React, { useMemo } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments, DepartmentInfo } from './DataEntryForm';
@@ -101,7 +102,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
              هيئة التقاعد الوطنية - فرع البصرة
          </div>
          <div className="header-center">
-             <div className="header-logo"><i className="fas fa-file-invoice-dollar"></i></div>
+             <img src="logo.png" alt="الشعار" className="header-logo-img" />
              <h1>تقرير الدوائر غير المسددة</h1>
              <p>لشهر {currentMonthName} {currentYear}</p>
              <p style={{fontSize: '10pt', marginTop: '5px'}}>عدد الدوائر: {unpaidReport.count}</p>

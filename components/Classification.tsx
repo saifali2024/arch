@@ -1,4 +1,5 @@
 
+
 import React, { useMemo } from 'react';
 import { RetirementRecord } from '../types';
 import { ministryDepartments } from './DataEntryForm';
@@ -114,7 +115,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
              هيئة التقاعد الوطنية - فرع البصرة
          </div>
          <div className="header-center">
-             <div className="header-logo"><i className="fas fa-trophy"></i></div>
+             <img src="logo.png" alt="الشعار" className="header-logo-img" />
              <h1>{reportTitle}</h1>
              <p>لشهر {monthName} {latestYear}</p>
          </div>
