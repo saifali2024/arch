@@ -234,7 +234,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
   };
 
   return (
-    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+    <div className="bg-slate-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in print-portrait">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 statistics-cards-container">
         <StatCard 
           icon="fa-sitemap" 
@@ -315,23 +315,31 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                  </div>
              </div>
 
-              <div className="space-y-6">
-                {Object.entries(modalData.data).map(([ministry, departments]) => (
-                  <div key={ministry} className="print-list-section">
-                    <h4 className="flex justify-between items-baseline text-lg font-bold text-blue-400 border-b-2 border-blue-500 pb-2 mb-3">
-                      <span>{ministry}</span>
-                      <span>
-                        <span className="text-sm font-normal bg-blue-900 text-blue-300 px-2 py-1 rounded-md no-print">
-                          {(departments as string[]).length} دائرة
-                        </span>
-                        <span className="print-inline-text hidden force-print-inline font-normal text-sm">({(departments as string[]).length} دائرة)</span>
-                      </span>
-                    </h4>
-                    <ul className="list-disc pr-6 space-y-2 text-gray-300">
-                      {(departments as string[]).map(dept => <li key={dept}>{dept}</li>)}
-                    </ul>
-                  </div>
-                ))}
+              {/* Converted to Table for Professional Portrait Print */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm text-center text-gray-200 border-collapse border border-gray-600">
+                  <thead>
+                      <tr className="bg-slate-700 text-gray-200">
+                          <th className="p-2 border border-gray-600 w-16">ت</th>
+                          <th className="p-2 border border-gray-600">اسم الدائرة</th>
+                      </tr>
+                  </thead>
+                  {Object.entries(modalData.data).map(([ministry, departments]) => (
+                    <tbody key={ministry}>
+                         <tr className="section-header bg-slate-600 print:bg-gray-200">
+                            <td colSpan={2} className="p-2 font-bold text-amber-300 print:text-black border border-gray-600 text-right">
+                                {ministry} <span className="text-xs font-normal">({(departments as string[]).length} دائرة)</span>
+                            </td>
+                        </tr>
+                        {(departments as string[]).map((dept, index) => (
+                            <tr key={dept} className="border-b border-gray-700 print:border-gray-300">
+                                <td className="p-2 border border-gray-600">{index + 1}</td>
+                                <td className="p-2 border border-gray-600 text-right">{dept}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                  ))}
+                </table>
               </div>
               
                <div className="print-footer hidden print:flex">

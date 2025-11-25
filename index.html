@@ -190,6 +190,17 @@
             page-break-inside: avoid;
             border-bottom: 1px solid #000 !important;
         }
+        
+        /* Section Header for Groups (Ministries) */
+        tr.section-header td {
+            background-color: #e5e7eb !important; /* Darker grey for section headers */
+            font-weight: bold !important;
+            text-align: right !important;
+            padding: 5px !important;
+            border-top: 2px solid #000 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
 
         th, td {
           border: 1px solid #000 !important;
@@ -200,11 +211,11 @@
         }
         
         /* Zebra Striping Logic */
-        tbody tr:nth-child(odd) {
+        tbody tr:not(.section-header):nth-child(odd) {
             background-color: #ffffff !important; /* أبيض */
         }
 
-        tbody tr:nth-child(even) {
+        tbody tr:not(.section-header):nth-child(even) {
             background-color: #f3f4f6 !important; /* رمادي فاتح جداً */
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
