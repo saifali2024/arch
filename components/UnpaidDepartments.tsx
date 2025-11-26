@@ -102,7 +102,6 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
              فرع البصرة
          </div>
          <div className="header-center">
-             <img src="logo.png" alt="الشعار" className="header-logo-img" />
              <h1>تقرير الدوائر غير المسددة</h1>
              <p>لشهر {currentMonthName} {currentYear}</p>
              <p style={{fontSize: '10pt', marginTop: '5px'}}>عدد الدوائر: {unpaidReport.count}</p>

@@ -398,7 +398,6 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                      فرع البصرة
                  </div>
                  <div className="header-center">
-                     <img src="logo.png" alt="الشعار" className="header-logo-img" />
                      <h1>تقرير التوقيفات التقاعدية</h1>
                      <p>{getFilterSummary()}</p>
                  </div>

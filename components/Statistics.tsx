@@ -327,7 +327,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                          فرع البصرة
                      </div>
                      <div className="header-center">
-                         <img src="logo.png" alt="الشعار" className="header-logo-img" />
                          <h1>{modalData.title}</h1>
                          <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
                      </div>

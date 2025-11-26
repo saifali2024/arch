@@ -115,7 +115,6 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
              فرع البصرة
          </div>
          <div className="header-center">
-             <img src="logo.png" alt="الشعار" className="header-logo-img" />
              <h1>{reportTitle}</h1>
              <p>لشهر {monthName} {latestYear}</p>
          </div>
