@@ -58,7 +58,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     return {
       latestYear,
       latestMonth,
-      rankedPaid: rankedPaid,
+      rankedPaid: paidRecords,
       unpaid: unpaidByMinistry,
       unpaidCount: unpaidDepartments.length,
       sortedUnpaidMinistries
