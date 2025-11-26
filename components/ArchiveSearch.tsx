@@ -395,7 +395,8 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                  <div className="header-side">
                      جمهورية العراق<br/>
                      وزارة المالية<br/>
-                     هيئة التقاعد الوطنية - فرع البصرة
+                     صندوق تقاعد موظفي الدولة<br/>
+                     فرع البصرة
                  </div>
                  <div className="header-center">
                      <img src="logo.png" alt="الشعار" className="header-logo-img" />
@@ -403,8 +404,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                      <p>{getFilterSummary()}</p>
                  </div>
                  <div className="header-side print-text-left">
-                     التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-                     العدد: ............
+                     <br/>
                  </div>
              </div>
 
@@ -418,7 +418,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                     <th scope="col" className="p-2">اسم الدائرة</th>
                     <th scope="col" className="p-2">التمويل</th>
                     <th scope="col" className="p-2">الحالة</th>
-                    <th scope="col" className="p-2">المرفقات</th>
+                    <th scope="col" className="p-2 no-print">المرفقات</th>
                     <th scope="col" className="p-2">الموظفين</th>
                     <th scope="col" className="p-2">الرواتب الاسمية</th>
                     <th scope="col" className="p-2">10%</th>
@@ -444,7 +444,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                             {record.status === 'paid' ? 'مسدد' : 'غير مسدد'}
                           </span>
                         </td>
-                        <td className="p-2">
+                        <td className="p-2 no-print">
                           {record.attachments && record.attachments.length > 0 ? (
                              <span className="text-xs">مرفق ({record.attachments.length})</span>
                           ) : (
