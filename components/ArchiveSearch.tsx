@@ -417,7 +417,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                     <th scope="col" className="p-2">التمويل</th>
                     <th scope="col" className="p-2">الحالة</th>
                     <th scope="col" className="p-2 no-print">المرفقات</th>
-                    <th scope="col" className="p-2">الموظفين</th>
+                    <th scope="col" className="p-2">عدد الموظفين</th>
                     <th scope="col" className="p-2">الرواتب الاسمية</th>
                     <th scope="col" className="p-2">10%</th>
                     <th scope="col" className="p-2">15%</th>
