@@ -322,9 +322,9 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
             <div className="printable-section print-portrait hidden print:block">
                  <div className="official-header">
                      <div className="header-side">
-                         جمهورية العراق<br/>
                          وزارة المالية<br/>
-                         هيئة التقاعد الوطنية - فرع البصرة
+                         صندوق تقاعد موظفي الدولة<br/>
+                         فرع البصرة
                      </div>
                      <div className="header-center">
                          <img src="logo.png" alt="الشعار" className="header-logo-img" />
@@ -332,8 +332,6 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
                          <p>عدد الدوائر: {Object.values(modalData.data).reduce((acc: number, depts) => acc + (depts as string[]).length, 0)}</p>
                      </div>
                      <div className="header-side print-text-left">
-                         التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-                         العدد: ............
                      </div>
                  </div>
 

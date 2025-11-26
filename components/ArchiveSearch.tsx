@@ -393,7 +393,6 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
              {/* Official Header: Hidden on screen, visible on print */}
              <div className="official-header hidden print:flex">
                  <div className="header-side">
-                     جمهورية العراق<br/>
                      وزارة المالية<br/>
                      صندوق تقاعد موظفي الدولة<br/>
                      فرع البصرة
@@ -404,7 +403,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
                      <p>{getFilterSummary()}</p>
                  </div>
                  <div className="header-side print-text-left">
-                     <br/>
+                     {/* التاريخ والعدد تم حذفهم */}
                  </div>
              </div>
 

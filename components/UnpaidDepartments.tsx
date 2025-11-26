@@ -97,9 +97,9 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
       {/* Official Header - Hidden on screen, visible on print */}
       <div className="official-header hidden print:flex">
          <div className="header-side">
-             جمهورية العراق<br/>
              وزارة المالية<br/>
-             هيئة التقاعد الوطنية - فرع البصرة
+             صندوق تقاعد موظفي الدولة<br/>
+             فرع البصرة
          </div>
          <div className="header-center">
              <img src="logo.png" alt="الشعار" className="header-logo-img" />
@@ -108,8 +108,6 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
              <p style={{fontSize: '10pt', marginTop: '5px'}}>عدد الدوائر: {unpaidReport.count}</p>
          </div>
          <div className="header-side print-text-left">
-             التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-             العدد: ............
          </div>
      </div>
       

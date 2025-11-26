@@ -58,7 +58,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     return {
       latestYear,
       latestMonth,
-      rankedPaid: paidRecords,
+      rankedPaid: rankedPaid,
       unpaid: unpaidByMinistry,
       unpaidCount: unpaidDepartments.length,
       sortedUnpaidMinistries
@@ -110,9 +110,9 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
        {/* Official Header - Hidden on screen, visible on print */}
        <div className="official-header hidden print:flex">
          <div className="header-side">
-             جمهورية العراق<br/>
              وزارة المالية<br/>
-             هيئة التقاعد الوطنية - فرع البصرة
+             صندوق تقاعد موظفي الدولة<br/>
+             فرع البصرة
          </div>
          <div className="header-center">
              <img src="logo.png" alt="الشعار" className="header-logo-img" />
@@ -120,8 +120,6 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
              <p>لشهر {monthName} {latestYear}</p>
          </div>
          <div className="header-side print-text-left">
-             التاريخ: {new Date().toLocaleDateString('ar-IQ')}<br/>
-             العدد: ............
          </div>
      </div>
 
