@@ -209,7 +209,8 @@ export const ministryDepartments: Record<string, DepartmentInfo[]> = {
     ],
     'وزارة النقل': [
         { name: 'الشركة العامة لموانئ العراق' },
-        { name: 'الشركة العامة للنقل البحري' }
+        { name: 'الشركة العامة للنقل البحري' },
+        { name: 'الهيأة البحرية العراقية العليا' }
     ]
 };
 
