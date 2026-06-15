@@ -15,6 +15,13 @@ export type View = 'entry' | 'query' | 'stats' | 'unpaid' | 'users' | 'classific
 // Simple "hashing" for demonstration. Replace with a real crypto library in production.
 const hashPassword = (password: string) => btoa(password);
 
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
 function App() {
   const [view, setView] = useState<View>('entry');
   const [records, setRecords] = useLocalStorage<RetirementRecord[]>('retirementRecords', []);
@@ -28,7 +35,7 @@ function App() {
     // Create a default admin user if no users exist
     if (users.length === 0) {
       const adminUser: User = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         name: 'المدير العام',
         username: 'admin',
         passwordHash: hashPassword('admin'),
@@ -113,7 +120,7 @@ function App() {
   
   // User Management Handlers
   const handleAddUser = (user: Omit<User, 'id'>) => {
-    const newUser = { ...user, id: crypto.randomUUID() };
+    const newUser = { ...user, id: generateId() };
     setUsers(prev => [...prev, newUser]);
   };
   const handleUpdateUser = (updatedUser: User) => {

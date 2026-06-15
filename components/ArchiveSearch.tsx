@@ -85,7 +85,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
     }
 
     const reportYears = new Set(records.map(r => r.year));
-    for (let y = 2020; y <= 2028; y++) reportYears.add(y);
+    for (let y = 2020; y <= 2029; y++) reportYears.add(y);
     const minYear = Math.min(...Array.from(reportYears).map(Number));
     const maxYear = Math.max(...Array.from(reportYears).map(Number));
 
@@ -135,7 +135,7 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
 
   }, [records, allDepartmentsWithFunding, ministryFilter, departmentFilter, yearFilter, monthFilter, fundingTypeFilter, paymentStatusFilter]);
 
-  const years = Array.from({ length: 2028 - 2020 + 1 }, (_, i) => 2028 - i);
+  const years = Array.from({ length: 2029 - 2020 + 1 }, (_, i) => 2029 - i);
   const months = useMemo(() => [
     { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
     { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },

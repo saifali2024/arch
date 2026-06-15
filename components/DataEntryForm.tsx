@@ -279,7 +279,7 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateReco
 
   const ministriesList = Object.keys(ministryDepartments).sort((a,b) => a.localeCompare(b, 'ar'));
   const departmentsForSelectedMinistry = ministry ? ministryDepartments[ministry] : [];
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i);
+  const years = Array.from({ length: 2029 - 2020 + 1 }, (_, i) => 2029 - i);
   const months = [
     { value: 1, name: 'كانون الثاني' }, { value: 2, name: 'شباط' }, { value: 3, name: 'آذار' },
     { value: 4, name: 'نيسان' }, { value: 5, name: 'أيار' }, { value: 6, name: 'حزيران' },
