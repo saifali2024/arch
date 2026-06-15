@@ -139,7 +139,14 @@ function App() {
     <div className="bg-slate-900 min-h-screen text-gray-200 font-sans flex flex-col">
       <main className="flex-grow p-4 sm:p-6 lg:p-8 w-full">
         <div className="sticky top-0 z-10 bg-slate-900 py-2 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 shadow-md no-print relative">
-            <div ref={userMenuRef} className="absolute top-2 right-4 sm:right-6 z-20 no-print">
+            {/* الجهة العليا اليمنى: معلومات الدائرة الرسمية */}
+            <div className="absolute top-2 right-4 sm:right-6 flex flex-col text-center items-center z-20">
+                <span className="text-xs sm:text-sm font-bold text-amber-400 font-cairo">وزارة المالية</span>
+                <span className="text-[9px] sm:text-xs text-gray-400 font-semibold font-cairo">صندوق تقاعد موظفي الدولة / فرع البصرة</span>
+            </div>
+
+            {/* الجهة العليا اليسرى: قائمة المستخدم */}
+            <div ref={userMenuRef} className="absolute top-2 left-4 sm:left-6 z-20 no-print">
                 <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                     className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 p-2 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-amber-500"
@@ -149,7 +156,7 @@ function App() {
                     <i className={`fas fa-chevron-down text-xs text-gray-400 transition-transform duration-200 ${isUserMenuOpen ? 'rotate-180' : ''}`}></i>
                 </button>
                 {isUserMenuOpen && (
-                    <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 animate-fade-in-down">
+                    <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-48 bg-slate-800 border border-slate-700 rounded-lg shadow-lg py-1 animate-fade-in-down">
                         <button
                             onClick={handleLogout}
                             className="w-full text-right px-4 py-2 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-3 transition-colors"
