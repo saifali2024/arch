@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { RetirementRecord, User } from './types';
-import { useLocalStorage } from './hooks/useLocalStorage';
 import Header from './components/Header';
 import DataEntryForm from './components/DataEntryForm';
 import ArchiveSearch from './components/ArchiveSearch';
@@ -9,6 +8,9 @@ import UnpaidDepartments from './components/UnpaidDepartments';
 import Login from './components/Login';
 import UserManagement from './components/UserManagement';
 import Classification from './components/Classification';
+
+import { collection, onSnapshot, doc, setDoc, deleteDoc, getDocFromServer } from 'firebase/firestore';
+import { db, handleFirestoreError, OperationType } from './firebase';
 
 export type View = 'entry' | 'query' | 'stats' | 'unpaid' | 'users' | 'classification';
 
@@ -24,18 +26,66 @@ const generateId = () => {
 
 function App() {
   const [view, setView] = useState<View>('entry');
-  const [records, setRecords] = useLocalStorage<RetirementRecord[]>('retirementRecords', []);
-  const [users, setUsers] = useLocalStorage<User[]>('retirement_users', []);
+  const [records, setRecords] = useState<RetirementRecord[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoaded, setUsersLoaded] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
+  // Test connection to Firestore
+  useEffect(() => {
+    async function testConnection() {
+      try {
+        await getDocFromServer(doc(db, 'test', 'connection'));
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('the client is offline')) {
+          console.error("Please check your Firebase configuration.");
+        }
+      }
+    }
+    testConnection();
+  }, []);
+
+  // Sync /records collection in real-time
+  useEffect(() => {
+    const recordsCol = collection(db, 'records');
+    const unsubscribe = onSnapshot(recordsCol, (snapshot) => {
+      const dbRecords: RetirementRecord[] = [];
+      snapshot.forEach((doc) => {
+        dbRecords.push(doc.data() as RetirementRecord);
+      });
+      setRecords(dbRecords);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'records');
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Sync /users collection in real-time
+  useEffect(() => {
+    const usersCol = collection(db, 'users');
+    const unsubscribe = onSnapshot(usersCol, (snapshot) => {
+      const dbUsers: User[] = [];
+      snapshot.forEach((doc) => {
+        dbUsers.push(doc.data() as User);
+      });
+      setUsers(dbUsers);
+      setUsersLoaded(true);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.GET, 'users');
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     // Create a default admin user if no users exist
-    if (users.length === 0) {
+    if (usersLoaded && users.length === 0) {
+      const adminId = 'default_admin';
       const adminUser: User = {
-        id: generateId(),
+        id: adminId,
         name: 'المدير العام',
         username: 'admin',
         passwordHash: hashPassword('admin'),
@@ -49,9 +99,11 @@ function App() {
           canViewClassification: true,
         },
       };
-      setUsers([adminUser]);
+      setDoc(doc(db, 'users', adminId), adminUser).catch((err) => {
+        console.error("Error creating default admin user:", err);
+      });
     }
-  }, [users, setUsers]);
+  }, [users, usersLoaded]);
   
   // Set initial view based on permissions after login
   useEffect(() => {
@@ -99,35 +151,53 @@ function App() {
     return Array.from(departmentSet);
   }, [records]);
 
-  const handleAddRecord = useCallback((newRecord: RetirementRecord) => {
-    setRecords(prevRecords => {
-      const filteredRecords = prevRecords.filter(record => record.id !== newRecord.id);
-      return [...filteredRecords, newRecord];
-    });
-  }, [setRecords]);
+  const handleAddRecord = useCallback(async (newRecord: RetirementRecord) => {
+    try {
+      await setDoc(doc(db, 'records', newRecord.id), newRecord);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `records/${newRecord.id}`);
+    }
+  }, []);
 
-  const handleUpdateRecord = useCallback((updatedRecord: RetirementRecord) => {
-    setRecords(prevRecords => 
-      prevRecords.map(record => 
-        record.id === updatedRecord.id ? updatedRecord : record
-      )
-    );
-  }, [setRecords]);
+  const handleUpdateRecord = useCallback(async (updatedRecord: RetirementRecord) => {
+    try {
+      await setDoc(doc(db, 'records', updatedRecord.id), updatedRecord);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `records/${updatedRecord.id}`);
+    }
+  }, []);
 
-  const handleDeleteRecord = useCallback((recordId: string) => {
-    setRecords(prevRecords => prevRecords.filter(record => record.id !== recordId));
-  }, [setRecords]);
+  const handleDeleteRecord = useCallback(async (recordId: string) => {
+    try {
+      await deleteDoc(doc(db, 'records', recordId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `records/${recordId}`);
+    }
+  }, []);
   
   // User Management Handlers
-  const handleAddUser = (user: Omit<User, 'id'>) => {
-    const newUser = { ...user, id: generateId() };
-    setUsers(prev => [...prev, newUser]);
+  const handleAddUser = async (user: Omit<User, 'id'>) => {
+    const newId = generateId();
+    const newUser = { ...user, id: newId };
+    try {
+      await setDoc(doc(db, 'users', newId), newUser);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `users/${newId}`);
+    }
   };
-  const handleUpdateUser = (updatedUser: User) => {
-    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+  const handleUpdateUser = async (updatedUser: User) => {
+    try {
+      await setDoc(doc(db, 'users', updatedUser.id), updatedUser);
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, `users/${updatedUser.id}`);
+    }
   };
-  const handleDeleteUser = (userId: string) => {
-    setUsers(prev => prev.filter(u => u.id !== userId));
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      await deleteDoc(doc(db, 'users', userId));
+    } catch (error) {
+      handleFirestoreError(error, OperationType.DELETE, `users/${userId}`);
+    }
   };
 
 

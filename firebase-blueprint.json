@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "Attachment": {
+      "title": "Attachment",
+      "description": "An attached document or image",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string" },
+        "data": { "type": "string", "description": "Base64 encoded string" }
+      },
+      "required": ["name", "type", "data"]
+    },
+    "Permissions": {
+      "title": "Permissions",
+      "description": "User account permissions",
+      "type": "object",
+      "properties": {
+        "canEnterData": { "type": "boolean" },
+        "canQueryData": { "type": "boolean" },
+        "canViewStats": { "type": "boolean" },
+        "canViewUnpaid": { "type": "boolean" },
+        "canEditDelete": { "type": "boolean" },
+        "canViewClassification": { "type": "boolean" }
+      },
+      "required": ["canEnterData", "canQueryData", "canViewStats", "canViewUnpaid", "canEditDelete", "canViewClassification"]
+    },
+    "RetirementRecord": {
+      "title": "RetirementRecord",
+      "description": "Official retirement record of a government branch",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Composite key: min-dept-year-month" },
+        "ministry": { "type": "string" },
+        "fundingType": { "type": "string" },
+        "departmentName": { "type": "string" },
+        "year": { "type": "integer" },
+        "month": { "type": "integer" },
+        "totalSalaries": { "type": "number" },
+        "employeeCount": { "type": "integer" },
+        "deduction10": { "type": "number" },
+        "deduction15": { "type": "number" },
+        "deduction25": { "type": "number" },
+        "attachments": { "type": "array" },
+        "submittedAt": { "type": "string" }
+      },
+      "required": [
+        "id",
+        "ministry",
+        "fundingType",
+        "departmentName",
+        "year",
+        "month",
+        "totalSalaries",
+        "employeeCount",
+        "deduction10",
+        "deduction15",
+        "deduction25",
+        "submittedAt"
+      ]
+    },
+    "User": {
+      "title": "User",
+      "description": "App user structure",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "username": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "permissions": { "$ref": "#/entities/Permissions" }
+      },
+      "required": ["id", "name", "username", "passwordHash", "role", "permissions"]
+    }
+  },
+  "firestore": {
+    "/records/{recordId}": {
+      "schema": "RetirementRecord",
+      "description": "Collection of all retirement records entered by institutions"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of application users with system permissions and roles"
+    }
+  }
+}
