@@ -63,15 +63,6 @@ const Header: React.FC<HeaderProps> = ({ activeView, setActiveView, permissions,
             الدوائر الغير مسددة
           </button>
         )}
-        {role === 'admin' && (
-           <button 
-            onClick={() => setActiveView('users')} 
-            className={`${baseClasses} ${activeView === 'users' ? activeClasses : inactiveClasses}`}
-          >
-            <i className="fas fa-users-cog ml-2"></i>
-            إدارة المستخدمين
-          </button>
-        )}
       </div>
     </div>
   );
