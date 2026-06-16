@@ -62,7 +62,105 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
   }, [records, currentYear, currentMonth, isGracePeriodActive]);
 
   const handlePrint = () => {
-    window.print();
+    const printElement = document.querySelector('.printable-section');
+    if (!printElement) {
+      window.print();
+      return;
+    }
+
+    // Create a temporary hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.id = 'print-unpaid-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.bottom = '0';
+    iframe.style.right = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.overflow = 'hidden';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    // Capture styling tags from head
+    let headHtml = '';
+    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style, head > script');
+    styleElements.forEach(el => {
+      headHtml += el.outerHTML;
+    });
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          ${headHtml}
+          <style>
+            .official-header { display: flex !important; }
+            .print-footer { display: flex !important; }
+            .no-print { display: none !important; }
+            
+            body { 
+              background-color: white !important; 
+              color: black !important; 
+              padding: 15px !important; 
+              font-family: 'Tajawal', 'Cairo', sans-serif !important;
+            }
+            .print-list-section h4 {
+              color: black !important;
+              font-weight: bold !important;
+              font-size: 11pt !important;
+              border-bottom: 2px solid black !important;
+              padding-bottom: 5px;
+              margin-top: 15px;
+              margin-bottom: 8px;
+            }
+            ul {
+              list-style-type: decimal !important;
+              padding-right: 20px !important;
+              color: black !important;
+            }
+            li {
+              color: black !important;
+              font-size: 10pt !important;
+              margin-bottom: 4px;
+            }
+            @media print {
+              @page {
+                size: A4 portrait;
+                margin: 5mm;
+              }
+            }
+          </style>
+        </head>
+        <body class="bg-white text-black">
+          <div class="printable-section">
+            ${printElement.innerHTML}
+          </div>
+          <script>
+            window.addEventListener('load', () => {
+              setTimeout(() => {
+                window.focus();
+                window.print();
+              }, 500);
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Clean up
+    setTimeout(() => {
+      const el = document.getElementById('print-unpaid-iframe');
+      if (el) document.body.removeChild(el);
+    }, 5000);
   };
 
   const handleSendEmail = () => {

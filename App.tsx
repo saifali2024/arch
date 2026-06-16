@@ -268,27 +268,24 @@ function App() {
             </div>
             
             {/* الشعار الرسمي للدائرة */}
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-2">
                 <img 
                     src={institutionalLogo} 
                     alt="الشعار الرسمي" 
                     referrerPolicy="no-referrer"
-                    className="h-28 w-auto object-contain max-w-[200px]"
+                    className="h-16 sm:h-20 w-auto object-contain max-w-[150px]"
                 />
             </div>
             
-            <h1 className="text-xl sm:text-2xl font-bold text-center text-amber-300 mb-1 font-kufam">
+            <h1 className="text-lg sm:text-xl font-bold text-center text-amber-300 mb-2 font-kufam">
             ارشفة التوقيفات التقاعدية
             </h1>
-            <p className="text-center text-gray-400 mb-3 text-sm">
-            إدارة وإدخال وبحث بيانات الدوائر والمؤسسات بسهولة.
-            </p>
             <div>
               <Header activeView={view} setActiveView={setView} permissions={loggedInUser.permissions} role={loggedInUser.role} />
             </div>
         </div>
         
-        <div className="mt-8 max-w-7xl mx-auto w-full">
+        <div className="mt-4 max-w-7xl mx-auto w-full">
           {view === 'entry' && loggedInUser.permissions.canEnterData && <DataEntryForm 
               onAddRecord={handleAddRecord} 
               departments={departments}

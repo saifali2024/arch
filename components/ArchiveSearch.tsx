@@ -157,7 +157,107 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
   };
   
   const handlePrint = () => {
-    window.print();
+    const printElement = document.querySelector('.printable-section');
+    if (!printElement) {
+      window.print();
+      return;
+    }
+
+    // Create a temporary hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.id = 'print-iframe';
+    iframe.style.position = 'fixed';
+    iframe.style.bottom = '0';
+    iframe.style.right = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    iframe.style.overflow = 'hidden';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (!doc) {
+      window.print();
+      return;
+    }
+
+    // Gather style definitions
+    let headHtml = '';
+    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style, head > script');
+    styleElements.forEach(el => {
+      headHtml += el.outerHTML;
+    });
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          ${headHtml}
+          <style>
+            /* Force print rules inside the iframe */
+            .official-header { display: flex !important; }
+            .print-footer { display: flex !important; }
+            .no-print { display: none !important; }
+            .print-inline-text { display: inline !important; }
+            
+            body { 
+              background-color: white !important; 
+              color: black !important; 
+              padding: 15px !important; 
+              font-family: 'Tajawal', 'Cairo', sans-serif !important;
+            }
+            
+            table {
+              border-collapse: collapse !important;
+              width: 100% !important;
+              color: black !important;
+              font-size: 8.5pt !important;
+              margin-top: 10px;
+            }
+            th, td {
+              border: 1px solid black !important;
+              color: black !important;
+              background-color: transparent !important;
+              padding: 4px 3px !important;
+            }
+            thead th {
+              background-color: #e5e7eb !important;
+              color: black !important;
+              font-weight: bold !important;
+            }
+            @media print {
+              @page {
+                size: A4 portrait;
+                margin: 5mm;
+              }
+            }
+          </style>
+        </head>
+        <body class="bg-white text-black">
+          <div class="printable-section">
+            ${printElement.innerHTML}
+          </div>
+          <script>
+            window.addEventListener('load', () => {
+              setTimeout(() => {
+                window.focus();
+                window.print();
+              }, 500);
+            });
+          </script>
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Remove the iframe after a short delay
+    setTimeout(() => {
+      const el = document.getElementById('print-iframe');
+      if (el) document.body.removeChild(el);
+    }, 5000);
   };
 
   const handleExport = () => {
