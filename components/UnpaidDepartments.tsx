@@ -87,9 +87,9 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
       return;
     }
 
-    // Capture styling tags from head
+    // Capture styling tags from head (excluding scripts)
     let headHtml = '';
-    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style, head > script');
+    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style');
     styleElements.forEach(el => {
       headHtml += el.outerHTML;
     });
@@ -143,24 +143,27 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
           <div class="printable-section">
             ${printElement.innerHTML}
           </div>
-          <script>
-            window.addEventListener('load', () => {
-              setTimeout(() => {
-                window.focus();
-                window.print();
-              }, 500);
-            });
-          </script>
         </body>
       </html>
     `);
     doc.close();
 
+    // Trigger printing securely from the trusted parent window thread once styles render
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error("Iframe print error, falling back to window.print():", err);
+        window.print();
+      }
+    }, 350);
+
     // Clean up
     setTimeout(() => {
       const el = document.getElementById('print-unpaid-iframe');
       if (el) document.body.removeChild(el);
-    }, 5000);
+    }, 6000);
   };
 
   const handleSendEmail = () => {

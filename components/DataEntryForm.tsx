@@ -218,11 +218,11 @@ export const ministriesWithCentralFunding = [
     'رئاسة الوزراء', 'مجلس القضاء الأعلى', 'وزارة التربية', 'وزارة الصحة', 
     'وزارة الاتصالات', 'وزارة التخطيط', 'وزارة التعليم العالي',
     'وزارة الداخلية', 'وزارة الزراعة', 'وزارة العدل', 'وزارة العمل والشؤون الاجتماعية',
-    'وزارة الموارد المائية', 'محافظة البصرة'
+    'وزارة الموارد المائية', 'محافظة البصرة', 'وزارة الكهرباء'
 ];
 
 export const ministriesWithSelfFunding = [
-    'وزارة الصناعة والمعادن', 'وزارة الكهرباء', 'وزارة النفط', 'وزارة النقل', 'وزارة التجارة', 'وزارة المالية'
+    'وزارة النفط', 'وزارة النقل', 'وزارة التجارة', 'وزارة المالية'
 ];
 
 export const getFundingType = (ministry: string, department: string): string => {
@@ -238,6 +238,14 @@ export const getFundingType = (ministry: string, department: string): string => 
   if (department === 'مديرية خزينة محافظة البصرة') return 'مركزي';
   if (department === 'مديرية كمرك المنطقة الجنوبية') return 'مركزي';
   if (department === 'دائرة التقاعد والضمان الاجتماعي البصرة') return 'ذاتي';
+
+  if (ministry === 'وزارة الصناعة والمعادن') {
+    if (department === 'الشركة العامة لصناعة الاسمدة الجنوبية') {
+      return 'ذاتي';
+    }
+    return 'مركزي';
+  }
+
   if (ministriesWithCentralFunding.includes(ministry)) return 'مركزي';
   if (ministriesWithSelfFunding.includes(ministry)) return 'ذاتي';
 

@@ -65,8 +65,34 @@ function App() {
     const recordsCol = collection(db, 'records');
     const unsubscribe = onSnapshot(recordsCol, (snapshot) => {
       const dbRecords: RetirementRecord[] = [];
-      snapshot.forEach((doc) => {
-        dbRecords.push(doc.data() as RetirementRecord);
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() as RetirementRecord;
+        let needsUpdate = false;
+        
+        if (data.ministry === 'وزارة الكهرباء' && data.fundingType !== 'مركزي') {
+          data.fundingType = 'مركزي';
+          needsUpdate = true;
+        } else if (data.ministry === 'وزارة الصناعة والمعادن') {
+          if (data.departmentName === 'الشركة العامة لصناعة الاسمدة الجنوبية') {
+            if (data.fundingType !== 'ذاتي') {
+              data.fundingType = 'ذاتي';
+              needsUpdate = true;
+            }
+          } else {
+            if (data.fundingType !== 'مركزي') {
+              data.fundingType = 'مركزي';
+              needsUpdate = true;
+            }
+          }
+        }
+
+        if (needsUpdate) {
+          // Save the corrected record back to Firestore asynchronously
+          setDoc(docSnap.ref, data).catch((err) => {
+            console.error("Error updating outdated ministry record to central/self funding:", err);
+          });
+        }
+        dbRecords.push(data);
       });
       setRecords(dbRecords);
     }, (error) => {

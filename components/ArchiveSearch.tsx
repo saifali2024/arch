@@ -182,9 +182,9 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
       return;
     }
 
-    // Gather style definitions
+    // Gather style definitions (Do not copy script tag definitions, as they can trigger sandboxed script violations)
     let headHtml = '';
-    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style, head > script');
+    const styleElements = document.querySelectorAll('link[rel="stylesheet"], style');
     styleElements.forEach(el => {
       headHtml += el.outerHTML;
     });
@@ -240,24 +240,27 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
           <div class="printable-section">
             ${printElement.innerHTML}
           </div>
-          <script>
-            window.addEventListener('load', () => {
-              setTimeout(() => {
-                window.focus();
-                window.print();
-              }, 500);
-            });
-          </script>
         </body>
       </html>
     `);
     doc.close();
 
+    // Trigger printing securely from the trusted parent window thread once styles render
+    setTimeout(() => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } catch (err) {
+        console.error("Iframe print error, falling back to window.print():", err);
+        window.print();
+      }
+    }, 350);
+
     // Remove the iframe after a short delay
     setTimeout(() => {
       const el = document.getElementById('print-iframe');
       if (el) document.body.removeChild(el);
-    }, 5000);
+    }, 6000);
   };
 
   const handleExport = () => {
