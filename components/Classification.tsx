@@ -22,7 +22,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     }
 
     const latestPeriod = records.reduce((latest, record) => {
-        const recordPeriod = record.year * 100 + record.month;
+        const recordPeriod = Number(record.year) * 100 + Number(record.month);
         return recordPeriod > latest ? recordPeriod : latest;
     }, 0);
     
@@ -32,7 +32,7 @@ const Classification: React.FC<ClassificationProps> = ({ records }) => {
     const latestMonth = latestPeriod % 100;
     
     const paidRecords = records
-      .filter(r => r.year === latestYear && r.month === latestMonth)
+      .filter(r => Number(r.year) === latestYear && Number(r.month) === latestMonth)
       .sort((a, b) => new Date(a.submittedAt).getTime() - new Date(b.submittedAt).getTime());
 
     const allDepartments = Object.values(ministryDepartments).flat();

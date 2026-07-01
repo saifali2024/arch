@@ -98,8 +98,8 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
       for (const month of monthsToScan) {
         for (const dept of departmentsToCheck) {
           const record = records.find(r => 
-            r.year === year && 
-            r.month === month && 
+            Number(r.year) === Number(year) && 
+            Number(r.month) === Number(month) && 
             r.departmentName === dept.departmentName && 
             r.ministry === dept.ministry
           );
@@ -130,7 +130,22 @@ const ArchiveSearch: React.FC<ArchiveSearchProps> = ({ records, onUpdateRecord, 
       finalReport = finalReport.filter(r => r.status === 'unpaid');
     }
     
-    setDisplayedResults(finalReport.sort((a,b) => a.year - b.year || a.month - b.month || a.departmentName.localeCompare(b.departmentName, 'ar')));
+    const sortedReport = [...finalReport].sort((a, b) => {
+      // 1. Paid status first
+      if (a.status === 'paid' && b.status === 'unpaid') return -1;
+      if (a.status === 'unpaid' && b.status === 'paid') return 1;
+
+      // 2. Year descending (most recent first)
+      if (b.year !== a.year) return b.year - a.year;
+
+      // 3. Month descending (most recent first)
+      if (b.month !== a.month) return b.month - a.month;
+
+      // 4. Department Name alphabetically
+      return a.departmentName.localeCompare(b.departmentName, 'ar');
+    });
+
+    setDisplayedResults(sortedReport);
     setSearchPerformed(true);
 
   }, [records, allDepartmentsWithFunding, ministryFilter, departmentFilter, yearFilter, monthFilter, fundingTypeFilter, paymentStatusFilter]);

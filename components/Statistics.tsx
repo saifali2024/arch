@@ -34,44 +34,64 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color, onClick 
 const PieChart = ({ chartData, title }: { chartData: any, title: string }) => {
     const chartRef = useRef<HTMLCanvasElement>(null);
     const chartInstanceRef = useRef<any>(null);
+    const [chartLoaded, setChartLoaded] = useState(typeof (window as any).Chart !== 'undefined');
 
     useEffect(() => {
-        if (chartRef.current) {
+        let checkInterval: any;
+        if (!chartLoaded) {
+            checkInterval = setInterval(() => {
+                if (typeof (window as any).Chart !== 'undefined') {
+                    setChartLoaded(true);
+                    clearInterval(checkInterval);
+                }
+            }, 500);
+        }
+        return () => {
+            if (checkInterval) clearInterval(checkInterval);
+        };
+    }, [chartLoaded]);
+
+    useEffect(() => {
+        if (chartLoaded && chartRef.current) {
             if (chartInstanceRef.current) {
                 chartInstanceRef.current.destroy();
             }
             const ctx = chartRef.current.getContext('2d');
-            if (ctx) {
-                chartInstanceRef.current = new (window as any).Chart(ctx, {
-                    type: 'pie',
-                    data: chartData,
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {
-                                    color: '#e2e8f0',
+            if (ctx && typeof (window as any).Chart !== 'undefined') {
+                try {
+                    chartInstanceRef.current = new (window as any).Chart(ctx, {
+                        type: 'pie',
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        color: '#e2e8f0',
+                                        font: {
+                                            family: "'Cairo', sans-serif",
+                                            size: 14
+                                        }
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: title,
+                                    color: '#fcd34d',
                                     font: {
                                         family: "'Cairo', sans-serif",
-                                        size: 14
+                                        size: 16,
+                                        weight: 'bold'
                                     }
-                                }
-                            },
-                            title: {
-                                display: true,
-                                text: title,
-                                color: '#fcd34d',
-                                font: {
-                                    family: "'Cairo', sans-serif",
-                                    size: 16,
-                                    weight: 'bold'
-                                }
+                                },
                             },
                         },
-                    },
-                });
+                    });
+                } catch (e) {
+                    console.error("Error creating Chart:", e);
+                }
             }
         }
         return () => {
@@ -79,7 +99,16 @@ const PieChart = ({ chartData, title }: { chartData: any, title: string }) => {
                 chartInstanceRef.current.destroy();
             }
         };
-    }, [chartData, title]);
+    }, [chartData, title, chartLoaded]);
+
+    if (!chartLoaded) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                <i className="fas fa-chart-pie text-4xl mb-2 animate-pulse text-amber-500"></i>
+                <span className="text-sm">جاري تحميل الرسم البياني...</span>
+            </div>
+        );
+    }
 
     return <canvas ref={chartRef} />;
 };
@@ -139,8 +168,8 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
         if (!existingRecord) {
             latestRecordsMap.set(record.departmentName, record);
         } else {
-            const existingDate = (existingRecord.year * 100) + existingRecord.month;
-            const currentDate = (record.year * 100) + record.month;
+            const existingDate = (Number(existingRecord.year) * 100) + Number(existingRecord.month);
+            const currentDate = (Number(record.year) * 100) + Number(record.month);
 
             if (currentDate > existingDate) {
                 latestRecordsMap.set(record.departmentName, record);
@@ -177,7 +206,7 @@ const Statistics: React.FC<StatisticsProps> = ({ records }) => {
     }
     const paidInCurrentMonth = new Set(
       records
-        .filter(r => r.year === currentYear && r.month === currentMonth)
+        .filter(r => Number(r.year) === Number(currentYear) && Number(r.month) === Number(currentMonth))
         .map(r => r.departmentName)
     );
     const paidCount = paidInCurrentMonth.size;

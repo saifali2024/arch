@@ -69,6 +69,25 @@ function App() {
         const data = docSnap.data() as RetirementRecord;
         let needsUpdate = false;
         
+        // Normalize department name to handle slashes, double spaces, and specific "المصرف العقاري" variations
+        const originalDeptName = data.departmentName;
+        let normalizedDeptName = originalDeptName;
+        if (normalizedDeptName) {
+          normalizedDeptName = normalizedDeptName.trim();
+          if (normalizedDeptName.includes('المصرف العقاري') && (normalizedDeptName.includes('البصرة') || normalizedDeptName.includes('بصرة'))) {
+            normalizedDeptName = 'المصرف العقاري / فرع البصرة';
+          }
+          // Standardize slash spacing: replace any "/" with spaces around it to exactly " / "
+          normalizedDeptName = normalizedDeptName.replace(/\s*\/\s*/g, ' / ');
+          // Standardize double spaces or multiple spaces
+          normalizedDeptName = normalizedDeptName.replace(/\s+/g, ' ');
+          
+          if (normalizedDeptName !== originalDeptName) {
+            data.departmentName = normalizedDeptName;
+            needsUpdate = true;
+          }
+        }
+        
         if (data.ministry === 'وزارة الكهرباء' && data.fundingType !== 'مركزي') {
           data.fundingType = 'مركزي';
           needsUpdate = true;

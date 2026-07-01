@@ -35,7 +35,7 @@ const UnpaidDepartments: React.FC<UnpaidDepartmentsProps> = ({ records }) => {
 
     const paidRecordsSet = new Set(
       records
-        .filter(r => r.year === currentYear && r.month === currentMonth)
+        .filter(r => Number(r.year) === Number(currentYear) && Number(r.month) === Number(currentMonth))
         .map(r => r.departmentName)
     );
     

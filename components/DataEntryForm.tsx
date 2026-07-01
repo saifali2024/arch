@@ -173,12 +173,12 @@ export const ministryDepartments: Record<string, DepartmentInfo[]> = {
         { name: 'مصرف الرافدين / فرع وحدة خزينة المنطقة الجنوبية' },
         { name: 'مصرف الرافدين / فرع ابي الخصيب' },
         { name: 'مصرف الرافدين / فرع البصرة 2' },
-        { name: 'مصرف الرافدين /  فرع الصيادلة' },
+        { name: 'مصرف الرافدين / فرع الصيادلة' },
         { name: 'مصرف الرافدين / فرع الجنينة' },
         { name: 'مصرف الرافدين / فرع سفوان' },
         { name: 'مصرف الرافدين / فرع الاستقلال' },
         { name: 'مصرف الرافدين / فرع المعقل' },
-        { name: 'مصرف الرافدين /  فرع خورالزبير' },
+        { name: 'مصرف الرافدين / فرع خورالزبير' },
         { name: 'مصرف الرافدين / فرع المدينة' },
         { name: 'المصرف الزراعي التعاوني / فرع البصرة' },
         { name: 'المصرف الزراعي التعاوني / فرع القرنة' },
@@ -297,7 +297,7 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateReco
 
   useEffect(() => {
     if (ministry && departmentName && year && month) {
-      const recordId = `${ministry}-${departmentName}-${year}-${month}`;
+      const recordId = `${ministry}-${departmentName}-${year}-${month}`.replace(/\//g, '_');
       const foundRecord = records.find(r => r.id === recordId);
       if(foundRecord){
         setExistingRecord(foundRecord);
@@ -363,7 +363,7 @@ const DataEntryForm: React.FC<DataEntryFormProps> = ({ onAddRecord, onUpdateReco
         });
     }
 
-    const recordId = `${ministry}-${departmentName}-${year}-${month}`;
+    const recordId = `${ministry}-${departmentName}-${year}-${month}`.replace(/\//g, '_');
     const baseRecord = {
       ministry,
       fundingType: getFundingType(ministry, departmentName),
